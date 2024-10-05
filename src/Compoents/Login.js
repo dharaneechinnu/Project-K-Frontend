@@ -79,9 +79,9 @@ const Login = ({ onClose }) => {
           <LoginButton type="submit">Log in</LoginButton>
         </form>
 
-        <SignupPrompt>
+        {/* <SignupPrompt>
          Are You admin <Link to="/adminlogin">Admin</Link>
-        </SignupPrompt>
+        </SignupPrompt> */}
       </PopupContainer>
     </Overlay>
   );

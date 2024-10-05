@@ -84,7 +84,7 @@ const BackgroundImage = styled.div`
 `;
 
 const CenteredText = styled.h1`
-  color: white;
+  color: black;
   font-size: 3rem;
   text-align: center;
   z-index: 1;

@@ -9,6 +9,9 @@ import Levels from '../Compoents/Levels'
 import Experience from '../Compoents/Experience'
 import Footer from '../Compoents/Footer'
 import Pricing from '../Compoents/Pricing'
+import For from '../Compoents/Whoisfor'
+import Notfor from '../Compoents/Notfor'
+import Faq from '../Compoents/Faq'
 
 const Main = () => {
   return (
@@ -22,7 +25,10 @@ const Main = () => {
  <TakeCourse/>
  {/* <Certified/> */}
  <Pricing/>
- <Experience/>
+ <For/>
+ <Notfor/>
+ <Faq/>
+ {/* <Experience/> */}
 
  <Footer/>
  {/* <SignUp/>
