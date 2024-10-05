@@ -12,7 +12,9 @@ const AddUser = () => {
     gender: '',
     pincode: '',
     whatappno: '',
-    mobileno: ''
+    mobileno: '',
+    batchno: '',
+    paymentstatus: '',
   });
   const [message, setMessage] = useState('');
 
@@ -36,7 +38,9 @@ const AddUser = () => {
           gender: '',
           pincode: '',
           whatappno: '',
-          mobileno: ''
+          mobileno: '',
+          batchno: '',
+          paymentstatus: '',
         });
       }
     } catch (error) {
@@ -85,6 +89,14 @@ const AddUser = () => {
         <FormGroup>
           <label>Mobile Number</label>
           <input type="text" name="mobileno" value={formData.mobileno} onChange={handleChange} required />
+        </FormGroup>
+        <FormGroup>
+          <label>Batch Number</label>
+          <input type="text" name="batchno" value={formData.batchno} onChange={handleChange} required />
+        </FormGroup>
+        <FormGroup>
+          <label>Payment Status</label>
+          <input type="text" name="paymentstatus" value={formData.paymentstatus} onChange={handleChange} required />
         </FormGroup>
         <SubmitButton type="submit">Register User</SubmitButton>
       </Form>

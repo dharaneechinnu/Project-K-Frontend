@@ -74,6 +74,8 @@ const UserDetails = () => {
             <th>Student ID</th>
             <th>Age</th>
             <th>Phone Number</th>
+            <th>Batch</th>
+            <th>Payment Status</th>
           </tr>
         </thead>
         <tbody>
@@ -86,6 +88,9 @@ const UserDetails = () => {
                 <td>{user.studentId}</td>
                 <td>{user.age}</td>
                 <td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</td>
+                <td>{user.batchno}</td>
+                <td>{user.paymentstatus}</td>
+
               </tr>
             ))
           ) : (
