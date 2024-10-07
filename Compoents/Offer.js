@@ -92,12 +92,12 @@ const ArtOfLivingOffers = () => {
         )}
       </DetailSection>
 
-      <CTAButton
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        Start Your Journey
-      </CTAButton>
+        <CTAButton
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Start Your Journey
+        </CTAButton>
     </Container>
   );
 };

@@ -98,7 +98,7 @@ const Stage = () => {
   };
 
   return (
-    <Container>
+    <Container id="stage">
       <Header>
         <Title>Your Journey to Inner Peace</Title>
         <Subtitle>Unlock each stage to progress on your path to mindfulness and self-discovery</Subtitle>

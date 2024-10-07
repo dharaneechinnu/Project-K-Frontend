@@ -25,10 +25,8 @@ const Home = () => {
     const fetchedUserData = JSON.parse(localstorage);
     setUserData(fetchedUserData);
 
-    // Set a random quote
     setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
 
-    // Change quote every 10 seconds
     const intervalId = setInterval(() => {
       setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
     }, 10000);
@@ -48,7 +46,7 @@ const Home = () => {
               <li>Yoga for Beginners</li>
               <li>Stress Management Techniques</li>
             </ul>
-            <p>Keep up the great work!</p>
+            <Button>View Courses</Button>
           </ContentCard>
         );
       case 'certification':
@@ -88,49 +86,51 @@ const Home = () => {
   };
 
   return (
-    <Container>
-      <WelcomeSection>
-        <ProfileImageContainer>
-          <ProfileImage>
-            <Camera size={40} />
-          </ProfileImage>
-        </ProfileImageContainer>
-        <Content>
-          <Title>Welcome, {userData ? userData.name : 'Seeker of Peace'}!</Title>
-          <Description>Embark on your journey to inner peace and self-discovery.</Description>
-          <Button>Begin Your Practice</Button>
-        </Content>
-      </WelcomeSection>
+    <Container id='home'>
+      <ContentWrapper>
+        <WelcomeSection>
+          <ProfileImageContainer>
+            <ProfileImage>
+              <Camera size={40} />
+            </ProfileImage>
+          </ProfileImageContainer>
+          <Content>
+            <Title>Welcome, {userData ? userData.name : 'Seeker of Peace'}!</Title>
+            <Description>Embark on your journey to inner peace and self-discovery.</Description>
+            <Button>Begin Your Practice</Button>
+          </Content>
+        </WelcomeSection>
 
-      <QuoteSection>
-        <QuoteText>"{quote}"</QuoteText>
-      </QuoteSection>
+        <QuoteSection>
+          <QuoteText>"{quote}"</QuoteText>
+        </QuoteSection>
 
-      <ButtonSection>
-        <ActionButton
-          isActive={activeSection === 'enrolled'}
-          onClick={() => setActiveSection('enrolled')}
-        >
-          <Book size={20} />
-          Enrolled
-        </ActionButton>
-        <ActionButton
-          isActive={activeSection === 'certification'}
-          onClick={() => setActiveSection('certification')}
-        >
-          <Award size={20} />
-          Certification
-        </ActionButton>
-        <ActionButton
-          isActive={activeSection === 'completed'}
-          onClick={() => setActiveSection('completed')}
-        >
-          <CheckCircle size={20} />
-          Completed
-        </ActionButton>
-      </ButtonSection>
+        <ButtonSection>
+          <ActionButton
+            isActive={activeSection === 'enrolled'}
+            onClick={() => setActiveSection('enrolled')}
+          >
+            <Book size={20} />
+            Enrolled
+          </ActionButton>
+          <ActionButton
+            isActive={activeSection === 'certification'}
+            onClick={() => setActiveSection('certification')}
+          >
+            <Award size={20} />
+            Certification
+          </ActionButton>
+          <ActionButton
+            isActive={activeSection === 'completed'}
+            onClick={() => setActiveSection('completed')}
+          >
+            <CheckCircle size={20} />
+            Completed
+          </ActionButton>
+        </ButtonSection>
 
-      <ContentSection>{renderContent()}</ContentSection>
+        <ContentSection>{renderContent()}</ContentSection>
+      </ContentWrapper>
     </Container>
   );
 };
@@ -138,10 +138,15 @@ const Home = () => {
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   padding: 20px;
   box-sizing: border-box;
   background-color: #f7f7f7;
+`;
+
+const ContentWrapper = styled.div`
+  width: 90%;
+  max-width: 90%;
 `;
 
 const WelcomeSection = styled.div`
@@ -163,8 +168,8 @@ const WelcomeSection = styled.div`
 `;
 
 const ProfileImageContainer = styled.div`
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background-color: #c1e3ff;
   display: flex;
@@ -196,38 +201,36 @@ const Content = styled.div`
 
 const Title = styled.h1`
   margin: 0;
-  margin-top: 5px;
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: #333;
 
   @media (max-width: 768px) {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
 `;
 
 const Description = styled.p`
   margin: 10px 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 `;
 
 const Button = styled.button`
-  padding: 12px 24px;
+  padding: 10px 20px;
   font-size: 1rem;
-  font-family: 'Poppins', sans-serif;
   color: #fff;
   background-color: #4a90e2;
   border: none;
-  border-radius: 30px;
+  border-radius: 25px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #3a7bc8;
+    background-color: #357abd;
   }
 `;
 
@@ -236,7 +239,7 @@ const QuoteSection = styled.div`
   padding: 15px;
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const QuoteText = styled.p`
@@ -249,23 +252,22 @@ const QuoteText = styled.p`
 const ButtonSection = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 15px;
+  gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     flex-direction: column;
-    gap: 10px;
   }
 `;
 
 const ActionButton = styled.button`
-  padding: 12px 20px;
-  font-size: 1rem;
+  padding: 10px 20px;
+  font-size: 0.9rem;
   background-color: ${props => props.isActive ? '#4a90e2' : '#fff'};
   color: ${props => props.isActive ? '#fff' : '#333'};
   border: 2px solid #4a90e2;
-  border-radius: 30px;
+  border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -277,7 +279,7 @@ const ActionButton = styled.button`
     color: #fff;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     width: 100%;
     justify-content: center;
   }
@@ -288,28 +290,37 @@ const ContentSection = styled.div`
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const ContentCard = styled.div`
   h3 {
     color: #4a90e2;
     margin-bottom: 15px;
+    text-align: center;
   }
 
   p {
     color: #555;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: center;
   }
 
   ul {
     list-style-type: none;
     padding: 0;
+    margin-bottom: 20px;
 
     li {
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       color: #666;
+      text-align: center;
     }
+  }
+
+  ${Button} {
+    display: block;
+    margin: 0 auto;
   }
 `;
 

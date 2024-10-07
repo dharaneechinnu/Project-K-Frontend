@@ -8,6 +8,7 @@ import Stress from '../Assest/bg1.jpg'; // New image for Stress Management
 import Mindfulness from '../Assest/bg2.jpg'; // New image for Mindfulness Practices
 import Wellness from '../Assest/bg3.jpg'; // New image for Holistic Wellness
 import Emotional from '../Assest/bg4.jpg'; // New image for Emotional Intelligence
+import { Link } from "react-router-dom";
 
 const offerData = [
   {
@@ -91,13 +92,15 @@ const ArtOfLivingOffers = () => {
           </motion.div>
         )}
       </DetailSection>
-
-      <CTAButton
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        Start Your Journey
-      </CTAButton>
+      <Link to={"/login"}>
+        <CTAButton
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Start Your Journey
+        </CTAButton>
+      </Link>
+      
     </Container>
   );
 };

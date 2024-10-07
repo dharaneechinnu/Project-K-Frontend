@@ -77,7 +77,7 @@ const WhoIsThisFor = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} id='about'>
       <h2 style={styles.title}>Who is this for? <span style={{color: '#22c55e'}}>✓</span></h2>
       <div style={styles.grid}>
         {forAudience.map((item, index) => (

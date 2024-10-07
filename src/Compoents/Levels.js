@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import beginnerMindfulness from '../Assest/r2.jpg';
 import advancedMeditation from '../Assest/yog2.png';
 import stressManagement from '../Assest/yog3.png';
+import { Link } from "react-router-dom";
 
 const courses = [
   {
@@ -33,7 +34,9 @@ const CourseCard = ({ course, isMiddle }) => (
     <ImageContainer>
       <CourseImage src={course.image} alt={course.title} />
       <Overlay>
-        <EnrollButton>Enroll Now</EnrollButton>
+        <Link to={"/login"}>
+           <EnrollButton>Enroll Now</EnrollButton>
+        </Link>
       </Overlay>
     </ImageContainer>
     <CardContent>

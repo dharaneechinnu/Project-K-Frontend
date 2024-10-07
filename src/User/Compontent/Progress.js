@@ -54,7 +54,7 @@ const MindfulnessProgress = () => {
     };
 
     return (
-        <Container>
+        <Container id='progress'>
             <Title>Mindfulness Journey</Title>
             
             <GridContainer>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import backgroundImage from '../Assest/bg.png';
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [currentText, setCurrentText] = useState("Bring the change in you");
@@ -24,7 +25,10 @@ const Home = () => {
     <Container id='home'>
       <BackgroundImage />
       <CenteredText>{currentText}<br />
-        <Button className='read'>Start Your Journey</Button>
+      <Link to={"/login"}>
+      <Button className='read'>Start Your Journey</Button>
+
+      </Link>
       </CenteredText>
     </Container>
   );

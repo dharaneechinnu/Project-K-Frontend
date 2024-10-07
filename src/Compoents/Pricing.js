@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCheck, FaTimes, FaInfoCircle } from 'react-icons/fa';
+import { Link } from "react-router-dom";
 
 const pricingData = [
   {
@@ -69,7 +70,7 @@ const Pricing = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   return (
-    <Container>
+    <Container id='pricing'>
       <Title>
         <motion.span
           initial={{ opacity: 0, y: -20 }}
@@ -152,9 +153,12 @@ const Pricing = () => {
                 ))}
               </ul>
               <p>Start your transformative journey today for just ${pricingData[selectedPlan].price.toFixed(2)}/Course.</p>
-              <ModalButton style={{ backgroundColor: pricingData[selectedPlan].color }}>
-                Enroll Now
-              </ModalButton>
+              <Link to={"/login"}>
+                  <ModalButton style={{ backgroundColor: pricingData[selectedPlan].color }}>
+                    Enroll Now
+                  </ModalButton>
+              </Link>
+             
             </ModalContent>
           </ModalOverlay>
         )}
