@@ -10,7 +10,8 @@ const AllCourseRequests = () => {
   useEffect(() => {
     const fetchAllCourseRequests = async () => {
       try {
-        const response = await Api.get('/Admin/get-all-course-requests'); // Adjust this endpoint as needed
+        const response = await Api.get('/Admin/get-all-course-requests');
+        console.log(response.data);
         setCourseRequests(response.data);
         setLoading(false);
       } catch (err) {
@@ -25,16 +26,21 @@ const AllCourseRequests = () => {
 
   const handleApprove = async (courseId, userId) => {
     try {
+      // Log to check the payload being sent
+      console.log("Approving course with courseId:", courseId, "and userId:", userId);
+      
       const response = await Api.post('/Admin/approve-course-request', { courseId, userId });
       alert(response.data.message); // Notify the admin
-      // Optionally, re-fetch the course requests after approval
+  
+      // Re-fetch course requests after approval or remove from the current list
       setCourseRequests(courseRequests.filter(request => request.courseId !== courseId));
     } catch (err) {
       console.error('Failed to approve course request', err);
+      console.log(err.response?.data); // Log the server response error for better debugging
       alert('Error approving course request.');
     }
   };
-
+  
   if (loading) {
     return <LoadingMessage>Loading course requests...</LoadingMessage>;
   }
@@ -50,8 +56,6 @@ const AllCourseRequests = () => {
         <thead>
           <tr>
             <th>#</th>
-            <th>User Name</th>
-            <th>User Email</th>
             <th>Student ID</th>
             <th>Batch Number</th>
             <th>Course ID</th>
@@ -63,11 +67,9 @@ const AllCourseRequests = () => {
             courseRequests.map((request, index) => (
               <tr key={request._id}>
                 <td>{index + 1}</td>
-                <td>{request.userName}</td>
-                <td>{request.userEmail}</td>
-                <td>{request.studentId}</td> {/* Display Student ID */}
-                <td>{request.batchNumber}</td> {/* Display Batch Number */}
-                <td>{request.courseId}</td>
+                <td>{request.userId}</td> {/* Ensure correct reference to Student ID */}
+                <td>{request.batchNumber}</td> {/* Ensure correct reference to Batch Number */}
+                <td>{request.courseId}</td> {/* Ensure correct reference to Course ID */}
                 <td>
                   <ApproveButton onClick={() => handleApprove(request.courseId, request.userId)}>
                     Approve
@@ -77,7 +79,7 @@ const AllCourseRequests = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="7" style={{ textAlign: 'center' }}>
+              <td colSpan="5" style={{ textAlign: 'center' }}>
                 No course requests found.
               </td>
             </tr>

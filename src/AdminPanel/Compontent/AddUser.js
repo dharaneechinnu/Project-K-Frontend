@@ -12,8 +12,7 @@ const AddUser = () => {
     pincode: '',
     whatappno: '',
     mobileno: '',
-    batchNumber: '', // Match the backend field 'batchNumber'
-    paymentStatus: '', // Match the backend field 'paymentStatus'
+    batchno: '', 
   });
 
   const [message, setMessage] = useState('');
@@ -43,8 +42,7 @@ const AddUser = () => {
           pincode: '',
           whatappno: '',
           mobileno: '',
-          batchNumber: '',
-          paymentStatus: '',
+          batchno: '',
         });
       }
     } catch (error) {
@@ -148,8 +146,8 @@ const AddUser = () => {
           <label>Batch Number</label>
           <input
             type="text"
-            name="batchNumber"
-            value={formData.batchNumber}
+            name="batchno"
+            value={formData.batchno}
             onChange={handleChange}
             required
           />

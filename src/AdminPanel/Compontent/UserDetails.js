@@ -29,18 +29,20 @@ const UserDetails = () => {
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-
+  
     if (term.trim() === "") {
       setFilteredUserDetails(userDetails);
     } else {
-      const filtered = userDetails.filter((user) =>
+      const filtered = userDetails.filter((user) => 
         user.name.toLowerCase().includes(term.toLowerCase()) ||
         user.email.toLowerCase().includes(term.toLowerCase()) ||
-        user.studentId.toString().includes(term)
+        user.studentId.toString().includes(term) ||
+        (user.batchno && user.batchno.toLowerCase().includes(term.toLowerCase()))
       );
       setFilteredUserDetails(filtered);
     }
   };
+  
 
   if (loading) {
     return <LoadingMessage>Loading user details...</LoadingMessage>;
@@ -86,13 +88,8 @@ const UserDetails = () => {
                 <td>{user.studentId}</td>
                 <td>{user.age}</td>
                 <td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</td>
-                <td>
-                  {user.batches && user.batches.length > 0 ? (
-                    user.batches.map(batch => batch.batchNumber).join(', ')
-                  ) : (
-                    'No Batch'
-                  )}
-                </td> {/* Display batch numbers from batches array */}
+                <td>{user.batchno || 'No Batch'}</td>
+
               </tr>
             ))
           ) : (

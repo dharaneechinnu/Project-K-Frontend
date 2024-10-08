@@ -10,23 +10,21 @@ const YogoForm = () => {
   const [questions, setQuestions] = useState([]);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [hasSubmitted, setHasSubmittedToday] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSubmissionStatus = async () => {
+    const checkDailySubmission = async () => {
+      const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
       try {
-        const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
-        const submissionStatusResponse = await Api.post(`/api/courses/${courseId}/has-submitted`, { studentId });
-        
-        if (submissionStatusResponse.data.hasSubmitted) {
-          setHasSubmitted(true);
-        } else {
+        const response = await Api.post(`/api/courses/${courseId}/has-submitted-today`, { studentId });
+        setHasSubmittedToday(response.data.hasSubmittedToday);
+        if (!response.data.hasSubmittedToday) {
           await fetchQuestions();
         }
       } catch (error) {
-        console.error('Error checking submission status:', error);
+        console.error('Error checking daily submission', error);
       } finally {
         setLoading(false);
       }
@@ -54,7 +52,7 @@ const YogoForm = () => {
       }
     };
 
-    checkSubmissionStatus();
+    checkDailySubmission();
   }, [courseId]);
 
   const handleInputChange = (questionId, value) => {
@@ -82,7 +80,7 @@ const YogoForm = () => {
     };
 
     try {
-      await Api.post(`/api/courses/${courseId}/submit-responses`, submissionData, {
+      await Api.post(`/api/courses/${courseId}/submit-daily-responses`, submissionData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Responses submitted successfully!');

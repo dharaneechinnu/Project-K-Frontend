@@ -26,6 +26,7 @@ const Stage = () => {
   const navigate = useNavigate();
 
   const userId = JSON.parse(localStorage.getItem('user'))?.studentId;
+  const Bacthno = JSON.parse(localStorage.getItem('user'))?.batchno;
 
   useEffect(() => {
     if (userId) {
@@ -37,13 +38,13 @@ const Stage = () => {
   const fetchUnlockedCourses = async () => {
     try {
       const { data } = await Api.get(`/course/unlocked-courses/${userId}`);
-      setUnlockedCourses(data); // Assuming data contains the unlocked courses
+      setUnlockedCourses(data); // Assuming data contains an array of unlocked course IDs
       console.log("Fetched unlocked courses: ", data);
     } catch (error) {
       console.error('Failed to fetch unlocked courses', error);
     }
   };
-
+  
   const fetchAllCourses = async () => {
     try {
       const { data } = await Api.get('/course/get-courses');
@@ -66,15 +67,15 @@ const Stage = () => {
       alert('User is not logged in. Please log in to request a course.');
       return;
     }
-
+  
     if (!courseId) {
       alert('Invalid course selected.');
       return;
     }
-
+  
     try {
-      console.log(userId, courseId);
-      const { data } = await Api.post('/course/request-course', { userId, courseId });
+      console.log(userId, courseId, Bacthno);
+      const { data } = await Api.post('/course/request-course', { userId, courseId, Bacthno });
   
       if (data && data.message) {
         alert(data.message);
@@ -90,13 +91,19 @@ const Stage = () => {
       }
     }
   };
+  
 
   const getStageStatus = (courseId) => {
-    if (unlockedCourses.some(course => course === courseId)) return 'unlocked';
+    if (unlockedCourses.includes(courseId)) {
+      return 'unlocked';
+    }
     const index = courseDetails.findIndex(course => course.courseId === courseId);
-    if (index === 0 || unlockedCourses.includes(courseDetails[index - 1]?.courseId)) return 'current';
+    if (index === 0 || unlockedCourses.includes(courseDetails[index - 1]?.courseId)) {
+      return 'current'; // Allow unlocking the current stage if the previous one is unlocked
+    }
     return 'locked';
   };
+  
 
   const totalPages = Math.ceil(courseDetails.length / PAGE_SIZE);
   const currentPageCourses = courseDetails.slice(
@@ -123,57 +130,57 @@ const Stage = () => {
         <Subtitle>Unlock each stage to progress on your path to mindfulness and self-discovery</Subtitle>
       </Header>
       <StagesContainer>
-        {Array.isArray(currentPageCourses) && currentPageCourses.length > 0 ? (
-          currentPageCourses.map((course) => {
-            const status = getStageStatus(course.courseId);
-            return (
-              <StageCard
-                key={course.courseId}
-                onClick={() => {
-                  if (status === 'unlocked') {
-                    // Navigate to YogoForm if the course is unlocked
-                    navigate(`/yogoform/${course.courseId}`);
-                  } else {
-                    setActiveStage(activeStage === course.courseId ? null : course.courseId);
-                  }
-                }}
-                active={activeStage === course.courseId}
-                status={status}
-              >
-                <StageImage src={courseImages[course.courseId] || courseImages[1]} alt={course.courseName} />
-                <StageContent>
-                  <StageHeader>
-                    <StageIcon status={status}>
-                      {status === 'unlocked' ? <Unlock /> : status === 'current' ? <Book /> : <Lock />}
-                    </StageIcon>
-                    <StageName>{course.courseName}</StageName>
-                  </StageHeader>
-                  <StageDescription>{course.courseDescription}</StageDescription>
-                  {activeStage === course.courseId && (
-                    <StageDetails>
-                      <DetailText>
-                        {course.detailedDescription || "Embark on a journey of self-discovery and inner peace with this transformative course."}
-                      </DetailText>
-                      {status === 'unlocked' ? (
-                        <ActionButton onClick={() => navigate(`/yogoform/${course.courseId}`)}>
-                          Continue Your Journey <ChevronRight size={16} />
-                        </ActionButton>
-                      ) : status === 'current' ? (
-                        <ActionButton onClick={() => handleRequestCourse(course.courseId)}>
-                          Request Access <Unlock size={16} />
-                        </ActionButton>
-                      ) : (
-                        <LockedMessage>Complete previous stages to unlock</LockedMessage>
-                      )}
-                    </StageDetails>
-                  )}
-                </StageContent>
-              </StageCard>
-            );
-          })
-        ) : (
-          <NoCoursesMessage>No courses available at this time.</NoCoursesMessage>
-        )}
+      {Array.isArray(currentPageCourses) && currentPageCourses.length > 0 ? (
+  currentPageCourses.map((course) => {
+    const status = getStageStatus(course.courseId);
+    return (
+      <StageCard
+        key={course.courseId}
+        onClick={() => {
+          if (status === 'unlocked') {
+            navigate(`/yogoform/${course.courseId}`);
+          } else {
+            setActiveStage(activeStage === course.courseId ? null : course.courseId);
+          }
+        }}
+        active={activeStage === course.courseId}
+        status={status}
+      >
+        <StageImage src={courseImages[course.courseId] || courseImages[1]} alt={course.courseName} />
+        <StageContent>
+          <StageHeader>
+            <StageIcon status={status}>
+              {status === 'unlocked' ? <Unlock /> : status === 'current' ? <Book /> : <Lock />}
+            </StageIcon>
+            <StageName>{course.courseName}</StageName>
+          </StageHeader>
+          <StageDescription>{course.courseDescription}</StageDescription>
+          {activeStage === course.courseId && (
+            <StageDetails>
+              <DetailText>
+                {course.detailedDescription || "Embark on a journey of self-discovery and inner peace with this transformative course."}
+              </DetailText>
+              {status === 'unlocked' ? (
+                <ActionButton onClick={() => navigate(`/yogoform/${course.courseId}`)}>
+                  Continue Your Journey <ChevronRight size={16} />
+                </ActionButton>
+              ) : status === 'current' ? (
+                <ActionButton onClick={() => handleRequestCourse(course.courseId)}>
+                  Request Access <Unlock size={16} />
+                </ActionButton>
+              ) : (
+                <LockedMessage>Complete previous stages to unlock</LockedMessage>
+              )}
+            </StageDetails>
+          )}
+        </StageContent>
+      </StageCard>
+    );
+  })
+) : (
+  <NoCoursesMessage>No courses available at this time.</NoCoursesMessage>
+)}
+
       </StagesContainer>
       <PaginationContainer>
         <PaginationButton onClick={prevPage} disabled={currentPage === 1}>
