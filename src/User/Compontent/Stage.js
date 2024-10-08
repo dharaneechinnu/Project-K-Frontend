@@ -14,35 +14,33 @@ const courseImages = {
   1: course1Image,
   2: course2Image,
   3: course3Image,
-  // Add more mappings as needed
 };
 
 const PAGE_SIZE = 3; // Number of courses per page
 
 const Stage = () => {
-  const [purchasedCourses, setPurchasedCourses] = useState([]);
-  const [unlockedCourses, setUnlockedCourses] = useState([]);
-  const [courseDetails, setCourseDetails] = useState([]); // Initialized as an empty array
+  const [unlockedCourses, setUnlockedCourses] = useState([]); // Unlocked courses
+  const [courseDetails, setCourseDetails] = useState([]); // All courses
   const [activeStage, setActiveStage] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
   const userId = JSON.parse(localStorage.getItem('user'))?.studentId;
 
   useEffect(() => {
     if (userId) {
-      fetchPurchasedCourses();
+      fetchUnlockedCourses();
       fetchAllCourses();
     }
   }, [userId]);
 
-  const fetchPurchasedCourses = async () => {
+  const fetchUnlockedCourses = async () => {
     try {
-      const { data } = await Api.get(`/payment/purchased-courses/${userId}`);
-      setPurchasedCourses(data);
-      setUnlockedCourses(data);
+      const { data } = await Api.get(`/course/unlocked-courses/${userId}`);
+      setUnlockedCourses(data); // Assuming data contains the unlocked courses
+      console.log("Fetched unlocked courses: ", data);
     } catch (error) {
-      console.error('Failed to fetch purchased courses', error);
+      console.error('Failed to fetch unlocked courses', error);
     }
   };
 
@@ -51,11 +49,8 @@ const Stage = () => {
       const { data } = await Api.get('/course/get-courses');
       console.log(data); // Log the response to see its structure
 
-      // Access the correct property if the array is nested within an object
       if (data && Array.isArray(data.courses)) {
         setCourseDetails(data.courses);
-      } else if (Array.isArray(data)) {
-        setCourseDetails(data);
       } else {
         console.error('Unexpected response format: courseDetails should be an array');
         setCourseDetails([]); // Fallback to an empty array if the response is not as expected
@@ -66,19 +61,43 @@ const Stage = () => {
     }
   };
 
-  const handlePayment = async (courseId) => {
-    navigate(`/yogoform/${courseId}`);
+  const handleRequestCourse = async (courseId) => {
+    if (!userId) {
+      alert('User is not logged in. Please log in to request a course.');
+      return;
+    }
+
+    if (!courseId) {
+      alert('Invalid course selected.');
+      return;
+    }
+
+    try {
+      console.log(userId, courseId);
+      const { data } = await Api.post('/course/request-course', { userId, courseId });
+  
+      if (data && data.message) {
+        alert(data.message);
+      } else {
+        alert('Course request sent successfully.');
+      }
+    } catch (error) {
+      console.error('Failed to send course request', error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(`Error: ${error.response.data.message}`);
+      } else {
+        alert('An error occurred while sending the course request. Please try again later.');
+      }
+    }
   };
 
-
   const getStageStatus = (courseId) => {
-    if (unlockedCourses.includes(courseId)) return 'unlocked';
+    if (unlockedCourses.some(course => course === courseId)) return 'unlocked';
     const index = courseDetails.findIndex(course => course.courseId === courseId);
     if (index === 0 || unlockedCourses.includes(courseDetails[index - 1]?.courseId)) return 'current';
     return 'locked';
   };
 
-  // Pagination Logic
   const totalPages = Math.ceil(courseDetails.length / PAGE_SIZE);
   const currentPageCourses = courseDetails.slice(
     (currentPage - 1) * PAGE_SIZE,
@@ -105,12 +124,19 @@ const Stage = () => {
       </Header>
       <StagesContainer>
         {Array.isArray(currentPageCourses) && currentPageCourses.length > 0 ? (
-          currentPageCourses.map((course, index) => {
+          currentPageCourses.map((course) => {
             const status = getStageStatus(course.courseId);
             return (
               <StageCard
                 key={course.courseId}
-                onClick={() => setActiveStage(activeStage === course.courseId ? null : course.courseId)}
+                onClick={() => {
+                  if (status === 'unlocked') {
+                    // Navigate to YogoForm if the course is unlocked
+                    navigate(`/yogoform/${course.courseId}`);
+                  } else {
+                    setActiveStage(activeStage === course.courseId ? null : course.courseId);
+                  }
+                }}
                 active={activeStage === course.courseId}
                 status={status}
               >
@@ -133,8 +159,8 @@ const Stage = () => {
                           Continue Your Journey <ChevronRight size={16} />
                         </ActionButton>
                       ) : status === 'current' ? (
-                        <ActionButton onClick={() => handlePayment(course.courseId)}>
-                          Unlock This Stage <Unlock size={16} />
+                        <ActionButton onClick={() => handleRequestCourse(course.courseId)}>
+                          Request Access <Unlock size={16} />
                         </ActionButton>
                       ) : (
                         <LockedMessage>Complete previous stages to unlock</LockedMessage>
@@ -168,7 +194,7 @@ const Stage = () => {
   );
 };
 
-// Styled Components (Updated to include pagination)
+// Styled Components
 const Container = styled.div`
   max-width: 100%;
   margin: 0 auto;
@@ -177,7 +203,6 @@ const Container = styled.div`
   min-height: 100vh;
 `;
 
-// Pagination Container Styling
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -231,6 +256,7 @@ const StagesContainer = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
 `;
+
 const NoCoursesMessage = styled.p`
   text-align: center;
   color: #999;

@@ -1,7 +1,6 @@
-// AddUser.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Api from '../../Api/Api';
+import Api from '../../Api/Api'; // Assuming you have your API setup
 
 const AddUser = () => {
   const [formData, setFormData] = useState({
@@ -13,10 +12,12 @@ const AddUser = () => {
     pincode: '',
     whatappno: '',
     mobileno: '',
-    batchno: '',
-    paymentstatus: '',
+    batchNumber: '', // Match the backend field 'batchNumber'
+    paymentStatus: '', // Match the backend field 'paymentStatus'
   });
+
   const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,11 +26,14 @@ const AddUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+    setError(false);
 
     try {
       const response = await Api.post('/Admin/userRegsiter', formData);
       if (response.status === 200) {
         setMessage('User registered successfully');
+        setError(false);
+        // Clear form fields after successful registration
         setFormData({
           name: '',
           email: '',
@@ -39,39 +43,71 @@ const AddUser = () => {
           pincode: '',
           whatappno: '',
           mobileno: '',
-          batchno: '',
-          paymentstatus: '',
+          batchNumber: '',
+          paymentStatus: '',
         });
       }
     } catch (error) {
-      setMessage(error.response ? error.response.data.message : 'Error registering user');
+      setError(true);
+      setMessage(
+        error.response ? error.response.data.message : 'Error registering user'
+      );
     }
   };
 
   return (
     <AddUserContainer>
       <Title>Add New User</Title>
-      {message && <Message>{message}</Message>}
+      {message && <Message error={error}>{message}</Message>}
       <Form onSubmit={handleSubmit}>
         <FormGroup>
           <label>Name</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Email</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Password</label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Age</label>
-          <input type="number" name="age" value={formData.age} onChange={handleChange} required />
+          <input
+            type="number"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Gender</label>
-          <select name="gender" value={formData.gender} onChange={handleChange} required>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+          >
             <option value="">Select</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
@@ -80,23 +116,56 @@ const AddUser = () => {
         </FormGroup>
         <FormGroup>
           <label>Pincode</label>
-          <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} required />
+          <input
+            type="text"
+            name="pincode"
+            value={formData.pincode}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>WhatsApp Number</label>
-          <input type="text" name="whatappno" value={formData.whatappno} onChange={handleChange} required />
+          <input
+            type="text"
+            name="whatappno"
+            value={formData.whatappno}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Mobile Number</label>
-          <input type="text" name="mobileno" value={formData.mobileno} onChange={handleChange} required />
+          <input
+            type="text"
+            name="mobileno"
+            value={formData.mobileno}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Batch Number</label>
-          <input type="text" name="batchno" value={formData.batchno} onChange={handleChange} required />
+          <input
+            type="text"
+            name="batchNumber"
+            value={formData.batchNumber}
+            onChange={handleChange}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <label>Payment Status</label>
-          <input type="text" name="paymentstatus" value={formData.paymentstatus} onChange={handleChange} required />
+          <select
+            name="paymentStatus"
+            value={formData.paymentStatus}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
         </FormGroup>
         <SubmitButton type="submit">Register User</SubmitButton>
       </Form>
@@ -140,7 +209,8 @@ const FormGroup = styled.div`
     color: #333;
   }
 
-  input, select {
+  input,
+  select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -151,7 +221,7 @@ const FormGroup = styled.div`
 
 const SubmitButton = styled.button`
   padding: 12px;
-  background-color: #4A90E2;
+  background-color: #4a90e2;
   color: white;
   border: none;
   border-radius: 5px;
@@ -160,7 +230,7 @@ const SubmitButton = styled.button`
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #357ABD;
+    background-color: #357abd;
   }
 `;
 

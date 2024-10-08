@@ -1,0 +1,151 @@
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import Api from '../../Api/Api';
+
+const AllCourseRequests = () => {
+  const [courseRequests, setCourseRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAllCourseRequests = async () => {
+      try {
+        const response = await Api.get('/Admin/get-all-course-requests'); // Adjust this endpoint as needed
+        setCourseRequests(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch course requests', err);
+        setError('Failed to load course requests.');
+        setLoading(false);
+      }
+    };
+
+    fetchAllCourseRequests();
+  }, []);
+
+  const handleApprove = async (courseId, userId) => {
+    try {
+      const response = await Api.post('/Admin/approve-course-request', { courseId, userId });
+      alert(response.data.message); // Notify the admin
+      // Optionally, re-fetch the course requests after approval
+      setCourseRequests(courseRequests.filter(request => request.courseId !== courseId));
+    } catch (err) {
+      console.error('Failed to approve course request', err);
+      alert('Error approving course request.');
+    }
+  };
+
+  if (loading) {
+    return <LoadingMessage>Loading course requests...</LoadingMessage>;
+  }
+
+  if (error) {
+    return <ErrorMessage>{error}</ErrorMessage>;
+  }
+
+  return (
+    <Section>
+      <SectionTitle>All Course Requests</SectionTitle>
+      <StyledTable>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User Name</th>
+            <th>User Email</th>
+            <th>Student ID</th>
+            <th>Batch Number</th>
+            <th>Course ID</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courseRequests.length > 0 ? (
+            courseRequests.map((request, index) => (
+              <tr key={request._id}>
+                <td>{index + 1}</td>
+                <td>{request.userName}</td>
+                <td>{request.userEmail}</td>
+                <td>{request.studentId}</td> {/* Display Student ID */}
+                <td>{request.batchNumber}</td> {/* Display Batch Number */}
+                <td>{request.courseId}</td>
+                <td>
+                  <ApproveButton onClick={() => handleApprove(request.courseId, request.userId)}>
+                    Approve
+                  </ApproveButton>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7" style={{ textAlign: 'center' }}>
+                No course requests found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </StyledTable>
+    </Section>
+  );
+};
+
+// Styled components
+const Section = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 1.5rem;
+  color: #4A90E2;
+  margin-bottom: 20px;
+`;
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  th {
+    background-color: #4A90E2;
+    color: white;
+  }
+
+  tr:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const LoadingMessage = styled.p`
+  font-size: 16px;
+  color: #4A90E2;
+  text-align: center;
+`;
+
+const ErrorMessage = styled.p`
+  color: #dc2626;
+  text-align: center;
+`;
+
+const ApproveButton = styled.button`
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #218838;
+  }
+`;
+
+export default AllCourseRequests;

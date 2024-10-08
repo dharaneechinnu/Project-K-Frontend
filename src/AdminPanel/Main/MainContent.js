@@ -8,12 +8,14 @@ import UserActivity from '../Compontent/UserActivity';
 import StatsCard from '../Compontent/StatsCard';
 import AdminAddQuestion from '../Compontent/AdminAddQuestion';
 import AddUser from '../Compontent/AddUser'; // Import AddUser Component
+import RequestCourse from '../Compontent/RequestCourse';
 
 const MainContent = ({ activeSection }) => {
   return (
     <ContentContainer>
       <StatsCard />
       {activeSection === 'User Details' && <UserDetails />}
+      {activeSection === 'request Course' && <RequestCourse />}
       {activeSection === 'User Transactions' && <UserTransactions />}
       {activeSection === 'Add Question' && <AdminAddQuestion />}
       {activeSection === 'Course Management' && <AddCourse />}

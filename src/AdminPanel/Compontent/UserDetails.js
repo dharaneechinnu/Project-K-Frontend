@@ -1,4 +1,3 @@
-// UserDetails.js
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Api from '../../Api/Api';
@@ -74,8 +73,7 @@ const UserDetails = () => {
             <th>Student ID</th>
             <th>Age</th>
             <th>Phone Number</th>
-            <th>Batch</th>
-            <th>Payment Status</th>
+            <th>Batch Number</th>
           </tr>
         </thead>
         <tbody>
@@ -88,14 +86,18 @@ const UserDetails = () => {
                 <td>{user.studentId}</td>
                 <td>{user.age}</td>
                 <td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</td>
-                <td>{user.batchno}</td>
-                <td>{user.paymentstatus}</td>
-
+                <td>
+                  {user.batches && user.batches.length > 0 ? (
+                    user.batches.map(batch => batch.batchNumber).join(', ')
+                  ) : (
+                    'No Batch'
+                  )}
+                </td> {/* Display batch numbers from batches array */}
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="6" style={{ textAlign: 'center' }}>
+              <td colSpan="7" style={{ textAlign: 'center' }}>
                 No users found.
               </td>
             </tr>

@@ -24,6 +24,7 @@ const LeftPanel = ({ activeSection, setActiveSection, handleLogout }) => {
       </AdminInfo>
       {[
         { icon: <User size={20} />, label: 'User Details' },
+        { icon: <User size={20} />, label: 'request Course' },
         { icon: <AlertCircle size={20} />, label: 'Add Question' },
         { icon: <BookOpen size={20} />, label: 'Course Management' },
         { icon: <UserPlus size={20} />, label: 'Add User' }, // New section for adding users
