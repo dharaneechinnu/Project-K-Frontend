@@ -1,228 +1,207 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import teacher1 from '../Assest/teacher1.jpg';
-import teacher2 from '../Assest/teacher2.jpg';
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const FooterContainer = styled.footer`
-  background-color: #000;
-  color: #fff;
-  padding: 40px 20px;
+  position: relative;
   width: 100%;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    padding: 20px;
-  }
+  min-height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #E6F3FF, #FFFFFF);
+  color: #333;
+  padding: 48px 0;
 `;
 
-const FooterGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+const ContentWrapper = styled.div`
   max-width: 1200px;
-  margin: 0 auto;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  width: 100%;
+  padding: 0 20px;
 `;
 
-const Card = styled.div`
-  background-color: #111;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: left;
-  transition: transform 0.2s ease-in-out;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 32px;
+`;
 
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Title = styled.h3`
+  font-size: 24px;
+  font-weight: bold;
+  color: #4A90E2;
+  margin-bottom: 16px;
+`;
+
+const Subtitle = styled.h4`
+  font-size: 18px;
+  font-weight: bold;
+  color: #4A90E2;
+  margin-bottom: 16px;
+`;
+
+const Text = styled.p`
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+`;
+
+const SocialIcons = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+
+const SocialLink = styled.a`
+  color: #4A90E2;
+  transition: color 0.3s ease;
   &:hover {
-    transform: translateY(-5px);
-  }
-
-  @media (max-width: 768px) {
-    padding: 15px;
+    color: #2171cd;
   }
 `;
 
-const ContactInfo = styled.div`
+const List = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const ListItem = styled.li`
+  margin-bottom: 8px;
+`;
+
+const Link = styled.a`
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  &:hover {
+    color: #4A90E2;
+  }
+`;
+
+const ContactItem = styled.p`
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+`;
 
-  svg {
-    margin-right: 10px;
-  }
+const ContactIcon = styled.span`
+  margin-right: 8px;
+  color: #4A90E2;
+`;
 
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
 
-  @media (max-width: 600px) {
-    p {
-      font-size: 13px;
-    }
+const Input = styled.input`
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const Button = styled.button`
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #4A90E2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: #2171cd;
   }
 `;
 
-const BlogItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 15px;
-
-  img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    margin-right: 10px;
-    border-radius: 4px;
-  }
-
-  p {
-    font-size: 12px;
-    color: #ccc;
-    margin: 0;
-  }
-
-  a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  @media (max-width: 600px) {
-    img {
-      width: 50px;
-      height: 50px;
-    }
-
-    p, a {
-      font-size: 12px;
-    }
-  }
-`;
-
-const SocialMediaIcons = styled.div`
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 10px;
-
-  a {
-    color: #fff;
-    font-size: 24px;
-
-    &:hover {
-      color: #ddd;
-    }
-  }
-
-  @media (max-width: 600px) {
-    gap: 10px;
-
-    a {
-      font-size: 20px;
-    }
-  }
+const Copyright = styled.p`
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
 `;
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Subscribed:', email);
+    setEmail('');
+  };
+
   return (
     <FooterContainer>
-      <FooterGrid>
-        <Card>
-          <h3>Have a Question?</h3>
-          <ContactInfo>
-            <FaMapMarkerAlt />
-            <p>Yoganetra Foundation, Chennai</p>
-          </ContactInfo>
-          <ContactInfo>
-            <FaPhoneAlt />
-            <p>+91 1800 260 1234</p>
-          </ContactInfo>
-          <ContactInfo>
-            <FaEnvelope />
-            <p>info@yoganetra.com</p>
-          </ContactInfo>
-        </Card>
-
-        <Card>
-          <h3>Recent Blog</h3>
-          <BlogItem>
-            <img src={teacher1} alt="Blog 1" />
-            <div>
-              <a href="#blog1">How to Improve Your Positivity</a>
-              <p>Learn tips and tricks to enhance your positivity in everything you do.</p>
-            </div>
-          </BlogItem>
-          <BlogItem>
-            <img src={teacher2} alt="Blog 2" />
-            <div>
-              <a href="#blog2">Benefits of Auto Suggestion</a>
-              <p>Reprogram your subconscious mind through auto suggestion.</p>
-            </div>
-          </BlogItem>
-        </Card>
-
-        <Card>
-          <h3>Quick Links</h3>
-          <ul style={{ padding: '0', listStyle: 'none' }}>
-            <li><a href="#about" style={{ color: '#fff', textDecoration: 'none' }}>About Us</a></li>
-            <li><a href="#projects" style={{ color: '#fff', textDecoration: 'none' }}>Projects</a></li>
-            <li><a href="#services" style={{ color: '#fff', textDecoration: 'none' }}>Services</a></li>
-            <li><a href="#contact" style={{ color: '#fff', textDecoration: 'none' }}>Contact</a></li>
-          </ul>
-        </Card>
-
-        <Card>
-          <h3>Subscribe Us</h3>
-          <p>Get the latest updates and offers.</p>
-          <form>
-            <input 
-              type="email" 
-              placeholder="Enter your email" 
-              style={{ 
-                width: '100%', 
-                padding: '10px', 
-                marginBottom: '10px', 
-                borderRadius: '4px', 
-                border: 'none' 
-              }} 
-            />
-            <button 
-              type="submit" 
-              style={{ 
-                width: '100%', 
-                padding: '10px', 
-                backgroundColor: 'blue', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                cursor: 'pointer' 
-              }}
-            >
-              Subscribe
-            </button>
-          </form>
-          <h4>Connect with Us</h4>
-          <SocialMediaIcons>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><FaFacebook /></a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><FaLinkedin /></a>
-          </SocialMediaIcons>
-        </Card>
-      </FooterGrid>
-
-      <p style={{ marginTop: '40px', fontSize: '12px', color: '#777' }}>© 2024 Kiddos. All rights reserved.</p>
+      <ContentWrapper>
+        <Grid>
+          <Column>
+            <Title>Mental Peace</Title>
+            <Text>Cultivating inner calm and balance in your daily life.</Text>
+            <SocialIcons>
+              {[Facebook, Twitter, Instagram, Linkedin].map((Icon, index) => (
+                <SocialLink key={index} href="#">
+                  <Icon size={20} />
+                </SocialLink>
+              ))}
+            </SocialIcons>
+          </Column>
+          
+          <Column>
+            <Subtitle>Quick Links</Subtitle>
+            <List>
+              {['Home', 'About', 'Services', 'Blog', 'Contact'].map((item) => (
+                <ListItem key={item}>
+                  <Link href="#">{item}</Link>
+                </ListItem>
+              ))}
+            </List>
+          </Column>
+          
+          <Column>
+            <Subtitle>Contact Us</Subtitle>
+            {[
+              { Icon: MapPin, text: '123 Serenity Lane, Mindful City' },
+              { Icon: Phone, text: '+1 (555) 123-4567' },
+              { Icon: Mail, text: 'info@mentalpeace.com' },
+            ].map(({ Icon, text }, index) => (
+              <ContactItem key={index}>
+                <ContactIcon><Icon size={16} /></ContactIcon>
+                <span>{text}</span>
+              </ContactItem>
+            ))}
+          </Column>
+          
+          <Column>
+            <Subtitle>Newsletter</Subtitle>
+            <Text>Subscribe for tips on mindfulness and mental well-being.</Text>
+            <Form onSubmit={handleSubmit}>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+              />
+              <Button type="submit">Subscribe</Button>
+            </Form>
+          </Column>
+        </Grid>
+        
+        <Copyright>
+          © 2024 Mental Peace. All rights reserved.
+        </Copyright>
+      </ContentWrapper>
     </FooterContainer>
   );
 };

@@ -69,9 +69,9 @@ const Nav = ({ isLoggedIn }) => {
           </Logo>
           <NavLinks>
             <NavLink href="#home" onClick={handleLinkClick}>Home</NavLink>
-            <NavLink href="#about" onClick={handleLinkClick}>About</NavLink>
             <NavLink href="#courses" onClick={handleLinkClick}>Courses</NavLink>
             <NavLink href="#pricing" onClick={handleLinkClick}>Pricing</NavLink>
+            <NavLink href="#about" onClick={handleLinkClick}>About</NavLink>
             {!isLoggedIn && (
               <StyledLink to="/login">Login</StyledLink>
             )}
@@ -96,9 +96,9 @@ const Nav = ({ isLoggedIn }) => {
       <Sidebar ref={sidebarRef} isOpen={isOpen}>
         <SidebarContent>
           <SidebarLink href="#home" onClick={handleLinkClick}>Home</SidebarLink>
-          <SidebarLink href="#about" onClick={handleLinkClick}>About</SidebarLink>
           <SidebarLink href="#courses" onClick={handleLinkClick}>Courses</SidebarLink>
           <SidebarLink href="#pricing" onClick={handleLinkClick}>Pricing</SidebarLink>
+          <SidebarLink href="#about" onClick={handleLinkClick}>About</SidebarLink>
           {!isLoggedIn && (
             <StyledLink to="/login">Login</StyledLink>
           )}
