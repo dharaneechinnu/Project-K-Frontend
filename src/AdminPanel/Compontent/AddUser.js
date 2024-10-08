@@ -154,19 +154,6 @@ const AddUser = () => {
             required
           />
         </FormGroup>
-        <FormGroup>
-          <label>Payment Status</label>
-          <select
-            name="paymentStatus"
-            value={formData.paymentStatus}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select</option>
-            <option value="paid">Paid</option>
-            <option value="unpaid">Unpaid</option>
-          </select>
-        </FormGroup>
         <SubmitButton type="submit">Register User</SubmitButton>
       </Form>
     </AddUserContainer>
