@@ -112,6 +112,8 @@ const Section = styled.div`
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: auto;
+  max-height:500px;
 `;
 
 const SectionTitle = styled.h2`
@@ -121,7 +123,7 @@ const SectionTitle = styled.h2`
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
+  width: 98%;
   padding: 10px;
   margin-bottom: 20px;
   font-size: 16px;

@@ -29,6 +29,7 @@ const ContentContainer = styled.div`
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
+  margin-left:290px;
 `;
 
 export default MainContent;

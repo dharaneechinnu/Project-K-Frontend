@@ -213,10 +213,10 @@ const Stage = () => {
 };
 // Styled Components
 const Container = styled.div`
-  max-width: 100%;
+  max-width: 87%;
   margin: 0 auto;
   padding: 2rem;
-  background-color: #f7f7f7;
+  background-color:white;
   min-height: 100vh;
 `;
 
@@ -255,6 +255,7 @@ const PaginationInfo = styled.span`
 const Header = styled.header`
   text-align: center;
   margin-bottom: 2rem;
+  padding:10px;
 `;
 
 const Title = styled.h1`

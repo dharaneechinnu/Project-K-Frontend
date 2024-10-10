@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import Api from '../../Api/Api'; // Assuming you have your API setup
 
 const AddUser = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +8,7 @@ const AddUser = () => {
     age: '',
     gender: '',
     pincode: '',
-    whatappno: '',
+    whatsappno: '',
     mobileno: '',
     batchno: '', 
   });
@@ -28,195 +26,223 @@ const AddUser = () => {
     setError(false);
 
     try {
-      const response = await Api.post('/Admin/userRegsiter', formData);
-      if (response.status === 200) {
-        setMessage('User registered successfully');
-        setError(false);
-        // Clear form fields after successful registration
-        setFormData({
-          name: '',
-          email: '',
-          password: '',
-          age: '',
-          gender: '',
-          pincode: '',
-          whatappno: '',
-          mobileno: '',
-          batchno: '',
-        });
-      }
+      // Simulating API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setMessage('User registered successfully');
+      setError(false);
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        age: '',
+        gender: '',
+        pincode: '',
+        whatsappno: '',
+        mobileno: '',
+        batchno: '',
+      });
     } catch (error) {
       setError(true);
-      setMessage(
-        error.response ? error.response.data.message : 'Error registering user'
-      );
+      setMessage('Error registering user');
     }
   };
 
   return (
-    <AddUserContainer>
-      <Title>Add New User</Title>
-      {message && <Message error={error}>{message}</Message>}
-      <Form onSubmit={handleSubmit}>
-        <FormGroup>
-          <label>Name</label>
+    <div style={styles.container}>
+      <h2 style={styles.title}>Add New User</h2>
+      {message && (
+        <div style={error ? styles.errorAlert : styles.successAlert}>
+          {message}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Name</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>Email</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Email</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>Password</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Password</label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>Age</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Age</label>
           <input
             type="number"
             name="age"
             value={formData.age}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>Gender</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Gender</label>
           <select
             name="gender"
             value={formData.gender}
             onChange={handleChange}
             required
+            style={styles.genderSelect}
           >
             <option value="">Select</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
-        </FormGroup>
-        <FormGroup>
-          <label>Pincode</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Pincode</label>
           <input
             type="text"
             name="pincode"
             value={formData.pincode}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>WhatsApp Number</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>WhatsApp Number</label>
           <input
             type="text"
-            name="whatappno"
-            value={formData.whatappno}
+            name="whatsappno"
+            value={formData.whatsappno}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>Mobile Number</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Mobile Number</label>
           <input
             type="text"
             name="mobileno"
             value={formData.mobileno}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <FormGroup>
-          <label>Batch Number</label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Batch Number</label>
           <input
             type="text"
             name="batchno"
             value={formData.batchno}
             onChange={handleChange}
             required
+            style={styles.input}
           />
-        </FormGroup>
-        <SubmitButton type="submit">Register User</SubmitButton>
-      </Form>
-    </AddUserContainer>
+        </div>
+        <div style={styles.buttonContainer}>
+          <button type="submit" style={styles.button}>
+            Register User
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
-// Styled Components
-const AddUserContainer = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-`;
+const styles = {
+  container: {
+    maxWidth: '100%',
+    margin: '0 auto',
+    padding: '20px',
+    backgroundColor: '#ffffff',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  },
+  title: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    marginBottom: '20px',
+    color: '#4A90E2',
+  },
+  form: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px',
+  },
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  label: {
+    marginBottom: '8px',
+    fontWeight: 'bold',
+  },
+  genderSelect: {
+    width: '93.5%', // Adjust this value to change the width
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    fontSize: '16px',
+    backgroundColor: '#fff', // Optional: ensures consistent background
+  },
+  input: {
+    width: '90%',
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    fontSize: '16px',
 
-const Title = styled.h2`
-  text-align: center;
-  margin-bottom: 20px;
-`;
-
-const Message = styled.p`
-  text-align: center;
-  color: ${(props) => (props.error ? 'red' : 'green')};
-  font-weight: bold;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 15px;
-
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-  }
-
-  input,
-  select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-`;
-
-const SubmitButton = styled.button`
-  padding: 12px;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #357abd;
-  }
-`;
+  },
+  buttonContainer: {
+    gridColumn: '1 / -1',
+    marginTop: '16px',
+  },
+  button: {
+    width: '100%',
+    padding: '12px',
+    backgroundColor: '#4a90e2',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+  },
+  successAlert: {
+    padding: '12px',
+    marginBottom: '16px',
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    borderRadius: '4px',
+  },
+  errorAlert: {
+    padding: '12px',
+    marginBottom: '16px',
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    borderRadius: '4px',
+  },
+};
 
 export default AddUser;

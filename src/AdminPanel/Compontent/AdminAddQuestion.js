@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Flower, Send, Plus, Minus, Edit2, Trash2, LogOut } from 'lucide-react';
+import { Send, Plus, Minus, Edit2, Trash2, LogOut } from 'lucide-react';
 import Api from '../../Api/Api'; // Your API handler
 import { v4 as uuid } from 'uuid';
 
@@ -174,7 +174,6 @@ const AdminAddQuestion = () => {
     <Container>
       <Header>
         <Title>
-          <FlowerIcon size={32} color="#3498db" />
           Mindfulness Question Management
         </Title>
         <LogoutButton onClick={() => alert('Logout functionality not implemented.')}>
@@ -285,7 +284,7 @@ const AdminAddQuestion = () => {
 };
 
 export const Container = styled.div`
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f9;
@@ -301,7 +300,7 @@ export const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+
 `;
 
 // Title with Icon
@@ -309,13 +308,8 @@ export const Title = styled.h2`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #333;
   font-size: 1.8rem;
-`;
-
-// Flower Icon Animation
-export const FlowerIcon = styled(Flower)`
-  animation: ${float} 3s ease-in-out infinite;
+  color: #4A90E2;
 `;
 
 // Logout Button

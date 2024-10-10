@@ -199,7 +199,7 @@ const AddCourse = () => {
 
 // Styled Components
 const AddCourseContainer = styled.div`
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f9;
@@ -212,7 +212,9 @@ const Title = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  font-size: 24px;
+  font-size: 1.8rem;
+  color: #4A90E2;
+  font-weight:bold;
 `;
 
 const ToggleAddButton = styled.button`

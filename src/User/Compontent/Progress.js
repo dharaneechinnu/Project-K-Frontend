@@ -136,18 +136,19 @@ const MindfulnessProgress = () => {
 
 // Styled components
 const Container = styled.div`
-  background: linear-gradient(to bottom right, #e0e7ff, #e5e1f9);
+  background: #f0f2f5;
   padding: 1.5rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top:20px;
+  margin-bottom:10px;
 `;
 
 const Title = styled.h1`
-  font-size: 1.875rem;
-  font-weight: bold;
-  text-align: center;
-  color: #3730a3;
+  font-size: 2.5rem;
+  color: #333;
   margin-bottom: 2rem;
+  text-align:center;
 `;
 
 const GridContainer = styled.div`
@@ -170,7 +171,8 @@ const Card = styled.div`
 const CardTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #4338ca;
+  color: #4a90e2;
+  font-weight:bold;
   margin-bottom: 1rem;
 `;
 
@@ -206,7 +208,7 @@ const StageName = styled.span`
 const StageDescription = styled.p`
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #4a90e2;
 `;
 
 const ChartContainer = styled.div`
@@ -215,8 +217,8 @@ const ChartContainer = styled.div`
 
 const TipButton = styled.button`
   margin: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #4338ca;
+  padding: 1rem 1rem;
+  background-color: #4a90e2;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -224,7 +226,7 @@ const TipButton = styled.button`
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #3730a3;
+    background-color:#4a90e3;
   }
 `;
 

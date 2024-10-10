@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const Footer = () => {
   return (
     <FooterContainer>
-      <Copyright>© 2024 Your Company. All rights reserved.</Copyright>
+      <Copyright>© 2024 Soul Stretch. All rights reserved.</Copyright>
     </FooterContainer>
   );
 };
@@ -14,7 +14,7 @@ const FooterContainer = styled.footer`
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: #ffffff; /* White background */
+  background-color:#f0f2f5; /* White background */
   border-top: 1px solid #eaeaea; /* Optional border for a subtle separation */
 `;
 

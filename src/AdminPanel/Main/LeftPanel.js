@@ -56,6 +56,7 @@ const PanelContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  position:fixed;
 `;
 
 const AdminInfo = styled.div`
@@ -95,7 +96,7 @@ const NavItem = styled.div`
 `;
 
 const LogoutButton = styled(NavItem)`
-  margin-top: auto;
+  margin-top: 50px;
   background-color: #e74c3c;
 
   &:hover {

@@ -46,7 +46,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  background: white;
   min-height: 60vh;
   border-radius: 30px;
 `;
