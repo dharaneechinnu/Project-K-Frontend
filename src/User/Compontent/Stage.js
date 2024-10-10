@@ -23,6 +23,8 @@ const Stage = () => {
   const [courseDetails, setCourseDetails] = useState([]); // All courses
   const [activeStage, setActiveStage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loadingCourses, setLoadingCourses] = useState(true); // Loading state for courses
+  const [loadingUnlockedCourses, setLoadingUnlockedCourses] = useState(true); // Loading state for unlocked courses
   const navigate = useNavigate();
 
   const userId = JSON.parse(localStorage.getItem('user'))?.studentId;
@@ -37,16 +39,21 @@ const Stage = () => {
 
   const fetchUnlockedCourses = async () => {
     try {
+      setLoadingUnlockedCourses(true);
       const { data } = await Api.get(`/course/unlocked-courses/${userId}`);
-      setUnlockedCourses(data); // Assuming data contains an array of unlocked course IDs
-      console.log("Fetched unlocked courses: ", data);
+      console.log('Unlocked Courses:', data); // Log the fetched data
+      const unlockedCourseIds = data.unlockedCourses.map(course => course.courseId);
+      setUnlockedCourses(unlockedCourseIds); // Set the unlocked course IDs to the state
     } catch (error) {
       console.error('Failed to fetch unlocked courses', error);
+    } finally {
+      setLoadingUnlockedCourses(false);
     }
   };
   
   const fetchAllCourses = async () => {
     try {
+      setLoadingCourses(true);
       const { data } = await Api.get('/course/get-courses');
       console.log(data); // Log the response to see its structure
 
@@ -59,24 +66,27 @@ const Stage = () => {
     } catch (error) {
       console.error('Failed to fetch courses', error);
       setCourseDetails([]); // In case of an error, ensure courseDetails remains an array
+    } finally {
+      setLoadingCourses(false);
     }
   };
 
-  const handleRequestCourse = async (courseId) => {
+  const handleRequestCourse = async (courseId, courseName) => {
     if (!userId) {
       alert('User is not logged in. Please log in to request a course.');
       return;
     }
   
-    if (!courseId) {
+    if (!courseId || !courseName) {
       alert('Invalid course selected.');
       return;
     }
   
     try {
-      console.log(userId, courseId, Bacthno);
-      const { data } = await Api.post('/course/request-course', { userId, courseId, Bacthno });
-  
+      console.log(userId, courseId, Bacthno, courseName);
+      const { data } = await Api.post('/course/request-course', { userId, courseId, courseName, Bacthno });
+       console.log(data);
+
       if (data && data.message) {
         alert(data.message);
       } else {
@@ -92,8 +102,8 @@ const Stage = () => {
     }
   };
   
-
   const getStageStatus = (courseId) => {
+    // Check if the course is unlocked by looking for its courseId in unlockedCourses array
     if (unlockedCourses.includes(courseId)) {
       return 'unlocked';
     }
@@ -104,7 +114,6 @@ const Stage = () => {
     return 'locked';
   };
   
-
   const totalPages = Math.ceil(courseDetails.length / PAGE_SIZE);
   const currentPageCourses = courseDetails.slice(
     (currentPage - 1) * PAGE_SIZE,
@@ -130,56 +139,58 @@ const Stage = () => {
         <Subtitle>Unlock each stage to progress on your path to mindfulness and self-discovery</Subtitle>
       </Header>
       <StagesContainer>
-      {Array.isArray(currentPageCourses) && currentPageCourses.length > 0 ? (
-  currentPageCourses.map((course) => {
-    const status = getStageStatus(course.courseId);
-    return (
-      <StageCard
-        key={course.courseId}
-        onClick={() => {
-          if (status === 'unlocked') {
-            navigate(`/yogoform/${course.courseId}`);
-          } else {
-            setActiveStage(activeStage === course.courseId ? null : course.courseId);
-          }
-        }}
-        active={activeStage === course.courseId}
-        status={status}
-      >
-        <StageImage src={courseImages[course.courseId] || courseImages[1]} alt={course.courseName} />
-        <StageContent>
-          <StageHeader>
-            <StageIcon status={status}>
-              {status === 'unlocked' ? <Unlock /> : status === 'current' ? <Book /> : <Lock />}
-            </StageIcon>
-            <StageName>{course.courseName}</StageName>
-          </StageHeader>
-          <StageDescription>{course.courseDescription}</StageDescription>
-          {activeStage === course.courseId && (
-            <StageDetails>
-              <DetailText>
-                {course.detailedDescription || "Embark on a journey of self-discovery and inner peace with this transformative course."}
-              </DetailText>
-              {status === 'unlocked' ? (
-                <ActionButton onClick={() => navigate(`/yogoform/${course.courseId}`)}>
-                  Continue Your Journey <ChevronRight size={16} />
-                </ActionButton>
-              ) : status === 'current' ? (
-                <ActionButton onClick={() => handleRequestCourse(course.courseId)}>
-                  Request Access <Unlock size={16} />
-                </ActionButton>
-              ) : (
-                <LockedMessage>Complete previous stages to unlock</LockedMessage>
-              )}
-            </StageDetails>
-          )}
-        </StageContent>
-      </StageCard>
-    );
-  })
-) : (
-  <NoCoursesMessage>No courses available at this time.</NoCoursesMessage>
-)}
+      {loadingCourses || loadingUnlockedCourses ? (
+        <LoadingMessage>Loading courses...</LoadingMessage>
+      ) : Array.isArray(currentPageCourses) && currentPageCourses.length > 0 ? (
+        currentPageCourses.map((course) => {
+          const status = getStageStatus(course.courseId);
+          return (
+            <StageCard
+              key={course.courseId}
+              onClick={() => {
+                if (status === 'unlocked') {
+                  navigate(`/yogoform/${course.courseId}`);
+                } else {
+                  setActiveStage(activeStage === course.courseId ? null : course.courseId);
+                }
+              }}
+              active={activeStage === course.courseId}
+              status={status}
+            >
+              <StageImage src={courseImages[course.courseId] || courseImages[1]} alt={course.courseName} />
+              <StageContent>
+                <StageHeader>
+                  <StageIcon status={status}>
+                    {status === 'unlocked' ? <Unlock /> : status === 'current' ? <Book /> : <Lock />}
+                  </StageIcon>
+                  <StageName>{course.courseName}</StageName>
+                </StageHeader>
+                <StageDescription>{course.courseDescription}</StageDescription>
+                {activeStage === course.courseId && (
+                  <StageDetails>
+                    <DetailText>
+                      {course.detailedDescription || "Embark on a journey of self-discovery and inner peace with this transformative course."}
+                    </DetailText>
+                    {status === 'unlocked' ? (
+                      <ActionButton onClick={() => navigate(`/yogoform/${course.courseId}`)}>
+                        Continue Your Journey <ChevronRight size={16} />
+                      </ActionButton>
+                    ) : status === 'current' ? (
+                      <ActionButton onClick={() => handleRequestCourse(course.courseId, course.courseName)}>
+                        Request Access <Unlock size={16} />
+                      </ActionButton>
+                    ) : (
+                      <LockedMessage>Complete previous stages to unlock</LockedMessage>
+                    )}
+                  </StageDetails>
+                )}
+              </StageContent>
+            </StageCard>
+          );
+        })
+      ) : (
+        <NoCoursesMessage>No courses available at this time.</NoCoursesMessage>
+      )}
 
       </StagesContainer>
       <PaginationContainer>
@@ -200,7 +211,6 @@ const Stage = () => {
     </Container>
   );
 };
-
 // Styled Components
 const Container = styled.div`
   max-width: 100%;
@@ -269,6 +279,12 @@ const NoCoursesMessage = styled.p`
   color: #999;
   font-size: 1.2rem;
   margin-top: 2rem;
+`;
+
+const LoadingMessage = styled.p`
+  text-align: center;
+  font-size: 1.5rem;
+  color: #4a90e2;
 `;
 
 const StageCard = styled.div`

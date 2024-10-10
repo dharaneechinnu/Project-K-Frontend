@@ -26,21 +26,32 @@ const AllCourseRequests = () => {
 
   const handleApprove = async (courseId, userId) => {
     try {
-      // Log to check the payload being sent
       console.log("Approving course with courseId:", courseId, "and userId:", userId);
-      
       const response = await Api.post('/Admin/approve-course-request', { courseId, userId });
-      alert(response.data.message); // Notify the admin
-  
-      // Re-fetch course requests after approval or remove from the current list
+      alert(response.data.message);
+
+      // Remove the request from the list after approval
       setCourseRequests(courseRequests.filter(request => request.courseId !== courseId));
     } catch (err) {
       console.error('Failed to approve course request', err);
-      console.log(err.response?.data); // Log the server response error for better debugging
       alert('Error approving course request.');
     }
   };
-  
+
+  const handleDeny = async (courseId, userId) => {
+    try {
+      console.log("Denying course with courseId:", courseId, "and userId:", userId);
+      const response = await Api.post('/course/deny-course-request', { courseId, userId });
+      alert(response.data.message);
+
+      // Remove the request from the list after denial
+      setCourseRequests(courseRequests.filter(request => request.courseId !== courseId));
+    } catch (err) {
+      console.error('Failed to deny course request', err);
+      alert('Error denying course request.');
+    }
+  };
+
   if (loading) {
     return <LoadingMessage>Loading course requests...</LoadingMessage>;
   }
@@ -67,13 +78,16 @@ const AllCourseRequests = () => {
             courseRequests.map((request, index) => (
               <tr key={request._id}>
                 <td>{index + 1}</td>
-                <td>{request.userId}</td> {/* Ensure correct reference to Student ID */}
-                <td>{request.batchNumber}</td> {/* Ensure correct reference to Batch Number */}
-                <td>{request.courseId}</td> {/* Ensure correct reference to Course ID */}
+                <td>{request.userId}</td>
+                <td>{request.Bacthno}</td>
+                <td>{request.courseId}</td>
                 <td>
                   <ApproveButton onClick={() => handleApprove(request.courseId, request.userId)}>
                     Approve
                   </ApproveButton>
+                  <DenyButton onClick={() => handleDeny(request.courseId, request.userId)}>
+                    Deny
+                  </DenyButton>
                 </td>
               </tr>
             ))
@@ -143,10 +157,25 @@ const ApproveButton = styled.button`
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
+  margin-right: 8px;
   transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #218838;
+  }
+`;
+
+const DenyButton = styled.button`
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #c82333;
   }
 `;
 

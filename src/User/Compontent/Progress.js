@@ -7,43 +7,51 @@ import Api from '../../Api/Api';
 const MindfulnessProgress = () => {
     const [activeStage, setActiveStage] = useState(1);
     const [showTip, setShowTip] = useState(false);
-    const [purchasedCourses, setPurchasedCourses] = useState([]);
+    const [purchasedCourses, setPurchasedCourses] = useState([]); // Initialize as an empty array
     const [responseData, setResponseData] = useState([]);
     const [error, setError] = useState(null);
     const userId = JSON.parse(localStorage.getItem('user'))?.studentId;
 
     useEffect(() => {
-        fetchPurchasedCourses();
-    }, []);
+        if (userId) {
+            fetchUnlockedCourses();
+        }
+    }, [userId]);
 
-    const fetchPurchasedCourses = async () => {
+    const fetchUnlockedCourses = async () => {
         try {
-            const { data } = await Api.get(`/payment/purchased/${userId}`);
-            console.log('Fetched purchased courses:', data);
-            setPurchasedCourses(data);
+            const { data } = await Api.get(`/course/unlocked-courses/${userId}`);
+            // Fix: access the array inside the unlockedCourses object
+            if (data && Array.isArray(data.unlockedCourses)) {
+                setPurchasedCourses(data.unlockedCourses); // Correctly set the array from unlockedCourses
+            } else {
+                console.error('Unexpected API response structure');
+                setPurchasedCourses([]); // Fallback to an empty array if data is not as expected
+            }
+            console.log("Fetched unlocked courses in progress: ", data);
         } catch (error) {
-            console.error('Failed to fetch purchased courses', error);
+            console.error('Failed to fetch unlocked courses', error);
+            setPurchasedCourses([]); // Fallback to an empty array on error
         }
     };
 
     const fetchResponses = async (courseId) => {
-      try {
-          const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
-          const { data } = await Api.get(`response/analytics/${courseId}/${studentId}`);
-          console.log('Fetched responses:', data);
-          if (data && data.questions) {
-              setResponseData(data.questions);
-          } else {
-              setResponseData([]);
-          }
-          setError(null);
-      } catch (error) {
-          console.error('Failed to fetch responses', error);
-          setResponseData([]); // Set empty data if there's an error
-          setError('No response data available for this course.');
-      }
-  };
-  
+        try {
+            const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
+            const { data } = await Api.get(`response/analytics/${courseId}/${studentId}`);
+            console.log('Fetched responses:', data);
+            if (data && data.questions) {
+                setResponseData(data.questions);
+            } else {
+                setResponseData([]);
+            }
+            setError(null);
+        } catch (error) {
+            console.error('Failed to fetch responses', error);
+            setResponseData([]); // Set empty data if there's an error
+            setError('No response data available for this course.');
+        }
+    };
 
     const handleStageClick = (index) => {
         setActiveStage(index + 1);
@@ -56,26 +64,30 @@ const MindfulnessProgress = () => {
     return (
         <Container id='progress'>
             <Title>Mindfulness Journey</Title>
-            
+
             <GridContainer>
                 <Card>
                     <CardTitle>Personal Growth Stages</CardTitle>
                     <StagesContainer>
-                        {purchasedCourses.map((course, index) => (
-                            <Stage 
-                                key={index}
-                                active={activeStage === index + 1}
-                                onClick={() => handleStageClick(index)}
-                            >
-                                <StageHeader>
-                                    <Flower color={activeStage === index + 1 ? '#4338ca' : '#a5b4fc'} size={24} />
-                                    <StageName>{course.courseName}</StageName>
-                                </StageHeader>
-                                {activeStage === index + 1 && (
-                                    <StageDescription>{course.courseDescription}</StageDescription>
-                                )}
-                            </Stage>
-                        ))}
+                        {Array.isArray(purchasedCourses) && purchasedCourses.length > 0 ? (
+                            purchasedCourses.map((course, index) => (
+                                <Stage
+                                    key={index}
+                                    active={activeStage === index + 1}
+                                    onClick={() => handleStageClick(index)}
+                                >
+                                    <StageHeader>
+                                        <Flower color={activeStage === index + 1 ? '#4338ca' : '#a5b4fc'} size={24} />
+                                        <StageName>{course.courseName}</StageName>
+                                    </StageHeader>
+                                    {activeStage === index + 1 && (
+                                        <StageDescription>{course.courseDescription}</StageDescription>
+                                    )}
+                                </Stage>
+                            ))
+                        ) : (
+                            <p>No unlocked courses available.</p>
+                        )}
                     </StagesContainer>
                 </Card>
 
@@ -94,10 +106,9 @@ const MindfulnessProgress = () => {
                                     <Legend />
                                     <Line type="monotone" dataKey="yesCount" stroke="#82ca9d" activeDot={{ r: 8 }} name="Yes Count" />
                                     <Line type="monotone" dataKey="noCount" stroke="#8884d8" activeDot={{ r: 8 }} name="No Count" />
-                                    {/* Display options count for multiple-choice questions if available */}
                                     {responseData.length > 0 && responseData[0].options &&
                                       Object.keys(responseData[0].options).map((option, index) => (
-                                        <Line key={index} type="monotone" dataKey={`options.${option}`} stroke={`#${Math.floor(Math.random()*16777215).toString(16)}`} name={option} />
+                                        <Line key={index} type="monotone" dataKey={`options.${option}`} stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`} name={option} />
                                     ))}
                                 </LineChart>
                             </ResponsiveContainer>
@@ -121,6 +132,7 @@ const MindfulnessProgress = () => {
         </Container>
     );
 };
+
 
 // Styled components
 const Container = styled.div`

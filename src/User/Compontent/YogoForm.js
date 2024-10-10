@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flower, Send } from 'lucide-react';
 import Api from '../../Api/Api';
+import { keyframes } from 'styled-components';
 
 const YogoForm = () => {
   const { courseId } = useParams();
   const [questions, setQuestions] = useState([]);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [hasSubmitted, setHasSubmittedToday] = useState(false);
+  const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ const YogoForm = () => {
     const checkDailySubmission = async () => {
       const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
       try {
-        const response = await Api.post(`/api/courses/${courseId}/has-submitted-today`, { studentId });
+        const response = await Api.post(`/api/courses/${courseId}/has-submitted-today`, { studentId ,courseId});
         setHasSubmittedToday(response.data.hasSubmittedToday);
         if (!response.data.hasSubmittedToday) {
           await fetchQuestions();
@@ -37,7 +38,7 @@ const YogoForm = () => {
           setQuestions(response.data);
           const formattedQuestions = response.data.map((question) => ({
             ...question,
-            options: question.questionType === 'yes-no' 
+            options: question.answerType === 'yes-no' 
               ? ['Yes', 'No'] 
               : question.options?.map((option) => option.optionText) || [],
           }));
@@ -59,6 +60,25 @@ const YogoForm = () => {
     setFormData({
       ...formData,
       [questionId]: value,
+    });
+  };
+
+  const handleMultipleChoiceChange = (questionId, option) => {
+    setFormData((prevFormData) => {
+      const currentAnswers = prevFormData[questionId] || [];
+      const isSelected = currentAnswers.includes(option);
+
+      if (isSelected) {
+        return {
+          ...prevFormData,
+          [questionId]: currentAnswers.filter((answer) => answer !== option),
+        };
+      } else {
+        return {
+          ...prevFormData,
+          [questionId]: [...currentAnswers, option],
+        };
+      }
     });
   };
 
@@ -106,19 +126,18 @@ const YogoForm = () => {
   if (loading) {
     return (
       <CenteredContainer>
-        <LoadingSpinner />
-        <LoadingMessage>Preparing your mindfulness journey...</LoadingMessage>
+        <LoadingMessage>Loading your mindfulness journey...</LoadingMessage>
       </CenteredContainer>
     );
   }
 
-  if (hasSubmitted) {
+  if (hasSubmittedToday) {
     return (
       <CenteredContainer>
         <SubmittedMessage>
           <Flower size={48} color="#4caf50" />
           <h2>Peace Achieved</h2>
-          <p>You have already completed this mindfulness exercise.</p>
+          <p>You have already completed this mindfulness exercise today. Please come back tomorrow.</p>
         </SubmittedMessage>
       </CenteredContainer>
     );
@@ -174,8 +193,8 @@ const YogoForm = () => {
                         <OptionButton
                           key={option}
                           type="button"
-                          selected={formData[questions[currentQuestionIndex]._id] === option}
-                          onClick={() => handleInputChange(questions[currentQuestionIndex]._id, option)}
+                          selected={formData[questions[currentQuestionIndex]._id]?.includes(option)}
+                          onClick={() => handleMultipleChoiceChange(questions[currentQuestionIndex]._id, option)}
                         >
                           {option}
                         </OptionButton>
@@ -382,15 +401,6 @@ const CenteredContainer = styled.div`
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-`;
-
-const LoadingSpinner = styled.div`
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #3498db;
-  border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
 `;
 
 const LoadingMessage = styled.p`
