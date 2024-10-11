@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Book, CheckCircle, User, Bookmark, Award, Calendar } from 'lucide-react';
+import { Book, CheckCircle, User, Bookmark, Award, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Api from '../../Api/Api';
-import logo from '../../Assest/logo.png'
+import logo from '../../Assest/logo.png';
 
 const Home = () => {
   const [activeSection, setActiveSection] = useState('enrolled');
@@ -10,6 +10,7 @@ const Home = () => {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [completedCourses, setCompletedCourses] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const courseGridRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,25 +47,56 @@ const Home = () => {
     navigate('/login');
   };
 
+  const handleResumeLearning = () => {
+    navigate('/learning-dashboard');
+  };
+
+  const scrollCourses = (direction) => {
+    if (courseGridRef.current) {
+      const scrollAmount = 300;
+      courseGridRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const renderContent = () => {
     if (activeSection === 'enrolled') {
       return (
         <div className="content-card">
           <h3><Bookmark className="section-icon" /> Enrolled Courses</h3>
-          <div className="course-grid">
-            {enrolledCourses.length > 0 ? (
-              enrolledCourses.map((course, index) => (
-                <div key={index} className="course-item">
-                  <Book className="course-icon" />
-                  <div>
-                    <h4>{course.courseName}</h4>
-                    <p><Calendar className="info-icon" /> Approved: {new Date(course.approvedAt).toLocaleDateString()}</p>
+          <div className="course-container">
+            <button 
+              className="scroll-button scroll-left"
+              onClick={() => scrollCourses('left')}
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <div className="course-grid" ref={courseGridRef}>
+              {enrolledCourses.length > 0 ? (
+                enrolledCourses.map((course, index) => (
+                  <div key={index} className="course-item">
+                    <Book className="course-icon" />
+                    <div className="course-content">
+                      <h4>{course.courseName}</h4>
+                      <p>
+                        <Calendar className="info-icon" /> 
+                        Approved: {new Date(course.approvedAt).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p>No enrolled courses yet.</p>
-            )}
+                ))
+              ) : (
+                <p className="no-courses">No enrolled courses yet.</p>
+              )}
+            </div>
+            <button 
+              className="scroll-button scroll-right"
+              onClick={() => scrollCourses('right')}
+            >
+              <ChevronRight size={24} />
+            </button>
           </div>
         </div>
       );
@@ -98,6 +130,7 @@ const Home = () => {
         <div className="header-content">
           <div className="header-left">
             <img src={logo} alt="Logo" className="logo" />
+            <h2>Soul Stretch</h2>
           </div>
           <div className="header-right">
             <div className="user-profile" onClick={() => setShowDropdown(!showDropdown)}>
@@ -121,7 +154,7 @@ const Home = () => {
         <section className="welcome-banner">
           <h1>Welcome back, {userData ? userData.name : 'Seeker of Peace'}!</h1>
           <p>Ready to continue your journey to inner peace and self-discovery?</p>
-          <button className="resume-btn">Resume Learning</button>
+          <button onClick={handleResumeLearning} className="resume-btn">Resume Learning</button>
         </section>
 
         <section className="nav-buttons">
@@ -150,7 +183,9 @@ const Home = () => {
           background-color: #f0f2f5;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        h2{
+          margin-left:5px;
+        }
         header {
           background-color: #ffffff;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -158,7 +193,7 @@ const Home = () => {
           top: 0;
           z-index: 1000;
         }
-
+        
         .header-content {
           max-width: 1200px;
           margin: 0 auto;
@@ -339,13 +374,30 @@ const Home = () => {
           color: #4a90e2;
         }
 
+ .course-container {
+          position: relative;
+          width: 94%;
+          padding: 0 40px;
+        }
+
         .course-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          display: flex;
+          overflow-x: auto;
+          scroll-behavior: smooth;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           gap: 1.5rem;
+          padding: 1rem 0;
+        }
+
+        .course-grid::-webkit-scrollbar {
+          display: none;
         }
 
         .course-item {
+          min-width: 280px;
+          max-width: 400px;
+          flex: 0 0 auto;
           background-color: #f9f9f9;
           padding: 1.5rem;
           border-radius: 12px;
@@ -354,21 +406,71 @@ const Home = () => {
           align-items: flex-start;
         }
 
-        .course-item:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        .course-content {
+          flex: 1;
+          min-width: 0;
         }
 
-        .course-icon {
-          color: #4a90e2;
-          margin-right: 1rem;
-          font-size: 2rem;
+        .course-content h4 {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .course-item h4 {
-          font-size: 1.2rem;
-          margin-bottom: 0.5rem;
-          color: #333;
+        .scroll-button {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          background: #f0f2f5;
+          border: none;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+          z-index: 10;
+        }
+
+        .scroll-button:hover {
+          background: #f0f2f5;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .scroll-left {
+          left: -15px;
+        }
+
+        .scroll-right {
+          right: 20px;
+        }
+
+        .no-courses {
+          padding: 2rem;
+          text-align: center;
+          color: #666;
+          width: 100%;
+        }
+
+        @media (max-width: 768px) {
+          .course-container {
+            padding: 0;
+          }
+
+          .scroll-button {
+            display: none;
+          }
+
+          .course-grid {
+            padding: 1rem;
+          }
+
+          .course-item {
+            min-width: 260px;
+          }
         }
 
         .info-icon {
