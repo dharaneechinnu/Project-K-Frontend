@@ -22,7 +22,6 @@ const AdminAddQuestion = () => {
   const [questions, setQuestions] = useState([]);
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -35,7 +34,13 @@ const AdminAddQuestion = () => {
 
   const fetchCourses = async () => {
     try {
-      const { data } = await Api.get('/course/get-courses');
+      const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+      const { data } = await Api.get('/course/get-courses', {
+        headers: {
+          Authorization: `Bearer ${token}` // Send token in Authorization header
+        }
+      });
+      console.log("Success in add queston")
       if (data.courses && Array.isArray(data.courses)) {
         setCourses(data.courses);
       } else {
@@ -49,12 +54,78 @@ const AdminAddQuestion = () => {
 
   const fetchQuestionsByCourse = async (courseId) => {
     try {
-      const { data } = await Api.get(`/api/questions/course/${courseId}`);
+      const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+      const { data } = await Api.get(`/api/questions/course/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}` // Send token in Authorization header
+        }
+      });
+      console.log("Success in get queston")
       setQuestions(data);
     } catch (error) {
       console.error('Failed to fetch questions', error);
     }
   };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this question?')) {
+      try {
+        const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+        await Api.delete(`/Admin/delete-question/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}` // Send token in Authorization header
+          }
+        });
+        alert('Question deleted successfully!');
+        fetchQuestionsByCourse(selectedCourse);
+      } catch (error) {
+        console.error('Error deleting question:', error);
+        alert('Failed to delete question. Please try again.');
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+      const payload = {
+        courseId: selectedCourse,
+        questions: formQuestions.map((q) => ({
+          questionText: q.questionText,
+          answerType: q.answerType,
+          options: q.options.map(opt => ({ optionText: opt.optionText })) // Ensure correct structure
+        }))
+      };
+
+      if (isEditing && editingQuestionId) {
+        await Api.put(`/Admin/edit-question/${editingQuestionId}`, payload.questions[0], {
+          headers: {
+            Authorization: `Bearer ${token}` // Send token in Authorization header
+          }
+        });
+        alert('Question updated successfully!');
+      } else {
+        await Api.post('/Admin/add-form', payload, {
+          headers: {
+            Authorization: `Bearer ${token}` // Send token in Authorization header
+          }
+        });
+        alert('Form added successfully!');
+      }
+
+      setFormQuestions([]);
+      setEditingQuestionId(null);
+      setIsEditing(false);
+      fetchQuestionsByCourse(selectedCourse);
+    } catch (error) {
+      console.error('Error adding/updating form:', error.message);
+      alert('Failed to process request. Please check the server connection.');
+    }
+  };
+
+
+
 
   const addQuestion = () => {
     setFormQuestions([
@@ -115,35 +186,7 @@ const AdminAddQuestion = () => {
     setFormQuestions(updatedQuestions);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        courseId: selectedCourse,
-        questions: formQuestions.map((q) => ({
-          questionText: q.questionText,
-          answerType: q.answerType,
-          options: q.options.map(opt => ({ optionText: opt.optionText })) // Ensure correct structure
-        }))
-      };
   
-      if (isEditing && editingQuestionId) {
-        await Api.put(`/Admin/edit-question/${editingQuestionId}`, payload.questions[0]);
-        alert('Question updated successfully!');
-      } else {
-        await Api.post('/Admin/add-form', payload);
-        alert('Form added successfully!');
-      }
-  
-      setFormQuestions([]);
-      setEditingQuestionId(null);
-      setIsEditing(false);
-      fetchQuestionsByCourse(selectedCourse);
-    } catch (error) {
-      console.error('Error adding/updating form:', error.message);
-      alert('Failed to process request. Please check the server connection.');
-    }
-  };
   
 
   const handleEdit = (question) => {
@@ -157,18 +200,7 @@ const AdminAddQuestion = () => {
     setIsEditing(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this question?')) {
-      try {
-        await Api.delete(`/Admin/delete-question/${id}`);
-        alert('Question deleted successfully!');
-        fetchQuestionsByCourse(selectedCourse);
-      } catch (error) {
-        console.error('Error deleting question:', error);
-        alert('Failed to delete question. Please try again.');
-      }
-    }
-  };
+
 
   return (
     <Container>

@@ -8,13 +8,20 @@ import MainContent from './MainContent';
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('User Details');
   const navigate = useNavigate();
+
   useEffect(() => {
-    // Check if the admin token is available in local storage
-    const token = localStorage.getItem('Admin-Token');
-    if (!token) {
-      navigate('/login'); // If no token, navigate to the login page
-    }
+    const interval = setInterval(() => {
+      const token = localStorage.getItem('Admin-Token');
+      if (!token) {
+        // If no token is found, navigate to the login page
+        navigate('/');
+      }
+    }, 1000); // Check every second (1000ms)
+
+    // Cleanup the interval when the component unmounts
+    return () => clearInterval(interval);
   }, [navigate]);
+  
   const handleLogout = () => {
    localStorage.removeItem('Admin-Token');
    localStorage.removeItem('Admin-user');

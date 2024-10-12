@@ -12,7 +12,21 @@ const UserDetails = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await Api.get('/Admin/alluser');
+        const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+        
+        if (!token) {
+          setError('No token found. Please login again.');
+          setLoading(false);
+          return;
+        }
+
+        // Send token in the Authorization header
+        const response = await Api.get('/Admin/alluser', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+         console.log("Success ")
         setUserDetails(response.data);
         setFilteredUserDetails(response.data);
         setLoading(false);
@@ -29,7 +43,7 @@ const UserDetails = () => {
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-  
+
     if (term.trim() === "") {
       setFilteredUserDetails(userDetails);
     } else {
@@ -42,7 +56,6 @@ const UserDetails = () => {
       setFilteredUserDetails(filtered);
     }
   };
-  
 
   if (loading) {
     return <LoadingMessage>Loading user details...</LoadingMessage>;
@@ -89,7 +102,6 @@ const UserDetails = () => {
                 <td>{user.age}</td>
                 <td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</td>
                 <td>{user.batchno || 'No Batch'}</td>
-
               </tr>
             ))
           ) : (
@@ -113,12 +125,12 @@ const Section = styled.div`
   margin-bottom: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: auto;
-  max-height:500px;
+  max-height: 500px;
 `;
 
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
-  color: #4A90E2;
+  color: #4a90e2;
   margin-bottom: 20px;
 `;
 
@@ -142,7 +154,7 @@ const StyledTable = styled.table`
   }
 
   th {
-    background-color: #4A90E2;
+    background-color: #4a90e2;
     color: white;
   }
 
@@ -153,7 +165,7 @@ const StyledTable = styled.table`
 
 const LoadingMessage = styled.p`
   font-size: 16px;
-  color: #4A90E2;
+  color: #4a90e2;
   text-align: center;
 `;
 

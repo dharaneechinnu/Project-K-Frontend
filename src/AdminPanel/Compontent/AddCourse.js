@@ -16,10 +16,14 @@ const AddCourse = () => {
   useEffect(() => {
     fetchCourses();
   }, []);
-
   const fetchCourses = async () => {
     try {
-      const response = await Api.get('/Admin/GetAllcourses');
+      const token = localStorage.getItem('Admin-Token'); // Retrieve token from localStorage
+      const response = await Api.get('/Admin/GetAllcourses', {
+        headers: {
+          Authorization: `Bearer ${token}` // Send token in Authorization header
+        }
+      });
       if (Array.isArray(response.data)) {
         setCourses(response.data);
       } else {
@@ -31,13 +35,13 @@ const AddCourse = () => {
     }
   };
   
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
-
+  
     try {
+      const token = localStorage.getItem('Admin-Token'); // Retrieve token from localStorage
+  
       if (editingCourseId) {
         // Edit existing course
         const response = await Api.put(`Admin/courses/${editingCourseId}`, {
@@ -46,6 +50,10 @@ const AddCourse = () => {
           courseDescription,
           subjectId,
           amount,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}` // Send token in Authorization header
+          }
         });
         if (response.status === 200) {
           setMessage('Course updated successfully.');
@@ -58,9 +66,13 @@ const AddCourse = () => {
           courseDescription,
           subjectId,
           amount,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}` // Send token in Authorization header
+          }
         });
         if (response.status === 201) {
-          alert("Course added successfully.")
+          alert("Course added successfully.");
           setMessage('Course added successfully.');
         }
       }
@@ -72,7 +84,7 @@ const AddCourse = () => {
       );
     }
   };
-
+  
   const handleEdit = (course) => {
     setCourseId(course.courseId);
     setCourseName(course.courseName);
@@ -82,20 +94,24 @@ const AddCourse = () => {
     setEditingCourseId(course._id);
     setShowAddCourse(true);
   };
-
+  
   const handleDelete = async (courseId) => {
     try {
-     const response =  await Api.delete(`Admin/courses/${courseId}`);
-     if (response.status === 200) {
-      alert("Course Delete successfully.")
-      fetchCourses();
-     }
-      
+      const token = localStorage.getItem('Admin-Token'); // Retrieve token from localStorage
+      const response = await Api.delete(`Admin/courses/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}` // Send token in Authorization header
+        }
+      });
+      if (response.status === 200) {
+        alert("Course deleted successfully.");
+        fetchCourses();
+      }
     } catch (err) {
       console.error('Failed to delete course', err);
     }
   };
-
+  
   const resetForm = () => {
     setCourseId('');
     setCourseName('');

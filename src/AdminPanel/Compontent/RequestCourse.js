@@ -10,7 +10,20 @@ const AllCourseRequests = () => {
   useEffect(() => {
     const fetchAllCourseRequests = async () => {
       try {
-        const response = await Api.get('/Admin/get-all-course-requests');
+        const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+
+        if (!token) {
+          setError('No token found. Please login again.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await Api.get('/Admin/get-all-course-requests', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in Authorization header
+          },
+        });
+
         console.log(response.data);
         setCourseRequests(response.data);
         setLoading(false);
@@ -26,8 +39,15 @@ const AllCourseRequests = () => {
 
   const handleApprove = async (courseId, userId) => {
     try {
+      const token = localStorage.getItem('Admin-Token'); // Get the token again
+
       console.log("Approving course with courseId:", courseId, "and userId:", userId);
-      const response = await Api.post('/Admin/approve-course-request', { courseId, userId });
+      const response = await Api.post('/Admin/approve-course-request', { courseId, userId }, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Send token in Authorization header
+        },
+      });
+
       alert(response.data.message);
 
       // Remove the request from the list after approval
@@ -40,8 +60,15 @@ const AllCourseRequests = () => {
 
   const handleDeny = async (courseId, userId) => {
     try {
+      const token = localStorage.getItem('Admin-Token'); // Get the token again
+
       console.log("Denying course with courseId:", courseId, "and userId:", userId);
-      const response = await Api.post('/course/deny-course-request', { courseId, userId });
+      const response = await Api.post('/course/deny-course-request', { courseId, userId }, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Send token in Authorization header
+        },
+      });
+
       alert(response.data.message);
 
       // Remove the request from the list after denial

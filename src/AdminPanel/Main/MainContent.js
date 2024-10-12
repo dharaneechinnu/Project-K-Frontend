@@ -15,7 +15,7 @@ const MainContent = ({ activeSection }) => {
     <ContentContainer>
       <StatsCard />
       {activeSection === 'User Details' && <UserDetails />}
-      {activeSection === 'request Course' && <RequestCourse />}
+      {activeSection === 'request Course' && <RequestCourse />} 
       {activeSection === 'User Transactions' && <UserTransactions />}
       {activeSection === 'Add Question' && <AdminAddQuestion />}
       {activeSection === 'Course Management' && <AddCourse />}

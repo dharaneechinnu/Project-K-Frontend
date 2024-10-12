@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Api from '../../Api/Api'; // Assuming you're using this for API requests
 
 const AddUser = () => {
   const [formData, setFormData] = useState({
@@ -8,9 +9,9 @@ const AddUser = () => {
     age: '',
     gender: '',
     pincode: '',
-    whatsappno: '',
+    whatsappno: '', // Ensure this matches the backend field name
     mobileno: '',
-    batchno: '', 
+    batchno: '', // Ensure this matches the backend field name
   });
 
   const [message, setMessage] = useState('');
@@ -26,24 +27,32 @@ const AddUser = () => {
     setError(false);
 
     try {
-      // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setMessage('User registered successfully');
-      setError(false);
-      setFormData({
-        name: '',
-        email: '',
-        password: '',
-        age: '',
-        gender: '',
-        pincode: '',
-        whatsappno: '',
-        mobileno: '',
-        batchno: '',
+      const token = localStorage.getItem('Admin-Token'); // Retrieve token from localStorage
+
+      const response = await Api.post('/Admin/register', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Send token in Authorization header
+        },
       });
+
+      if (response.status === 200) {
+        setMessage('User registered successfully');
+        setError(false);
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          age: '',
+          gender: '',
+          pincode: '',
+          whatsappno: '', // Reset to ensure the form is cleared
+          mobileno: '',
+          batchno: '',
+        });
+      }
     } catch (error) {
       setError(true);
-      setMessage('Error registering user');
+      setMessage(error.response ? error.response.data.message : 'Error registering user');
     }
   };
 
@@ -130,7 +139,7 @@ const AddUser = () => {
           <label style={styles.label}>WhatsApp Number</label>
           <input
             type="text"
-            name="whatsappno"
+            name="whatsappno" // Ensure the field name matches backend schema
             value={formData.whatsappno}
             onChange={handleChange}
             required
@@ -152,7 +161,7 @@ const AddUser = () => {
           <label style={styles.label}>Batch Number</label>
           <input
             type="text"
-            name="batchno"
+            name="batchno" // Ensure the field name matches backend schema
             value={formData.batchno}
             onChange={handleChange}
             required
@@ -199,12 +208,12 @@ const styles = {
     fontWeight: 'bold',
   },
   genderSelect: {
-    width: '93.5%', // Adjust this value to change the width
+    width: '93.5%',
     padding: '8px',
     border: '1px solid #ccc',
     borderRadius: '4px',
     fontSize: '16px',
-    backgroundColor: '#fff', // Optional: ensures consistent background
+    backgroundColor: '#fff',
   },
   input: {
     width: '90%',
@@ -212,7 +221,6 @@ const styles = {
     border: '1px solid #ccc',
     borderRadius: '4px',
     fontSize: '16px',
-
   },
   buttonContainer: {
     gridColumn: '1 / -1',

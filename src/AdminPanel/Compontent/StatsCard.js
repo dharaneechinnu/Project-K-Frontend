@@ -13,7 +13,20 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await Api.get('/Admin/stats');
+        const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
+
+        if (!token) {
+          setError('No token found. Please login again.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await Api.get('/Admin/stats', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in Authorization header
+          },
+        });
+
         const data = response.data;
         setStats([
           { title: 'Total Users', value: data.totalUsers, icon: Users, color: '#3b82f6' },
