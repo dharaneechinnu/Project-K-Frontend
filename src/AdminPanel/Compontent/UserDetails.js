@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Box, Button, Input, Table, Thead, Tbody, Tr, Th, Td, Text, Spinner, Alert, AlertIcon, 
-  ChakraProvider
+  ChakraProvider, Flex
 } from '@chakra-ui/react';
 import Api from '../../Api/Api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -70,7 +70,6 @@ const UserDetails = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log("Response of user : ", response.data);
       setSelectedUserResponses(response.data.responseData || []); // Ensure responseData is at least an empty array
       setAnalyticsData(response.data.analytics || {}); // Ensure analytics is an object
     } catch (err) {
@@ -160,7 +159,7 @@ const UserDetails = () => {
                   <Tr key={index}>
                     <Td>{response.questionText}</Td>
                     <Td>{response.answer}</Td>
-                    <Td>{new Date(response.responseDate).toLocaleDateString()}</Td>
+                    <Td>{moment(response.responseDate).format('YYYY-MM-DD')}</Td>
                   </Tr>
                 ))}
               </Tbody>
