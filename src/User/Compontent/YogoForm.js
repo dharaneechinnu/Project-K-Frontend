@@ -11,49 +11,35 @@ const YogoForm = () => {
   const [questions, setQuestions] = useState([]);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkDailySubmission = async () => {
-      const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
-      try {
-        const response = await Api.post(`/api/courses/${courseId}/has-submitted-today`, { studentId ,courseId});
-        setHasSubmittedToday(response.data.hasSubmittedToday);
-        if (!response.data.hasSubmittedToday) {
-          await fetchQuestions();
-        }
-      } catch (error) {
-        console.error('Error checking daily submission', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchQuestions();
+  }, [courseId]);
 
-    const fetchQuestions = async () => {
-      try {
-        const response = await Api.get(`/api/courses/${courseId}/questions`);
-        if (response && response.data && Array.isArray(response.data)) {
-          const formattedQuestions = response.data.map((question) => ({
-            ...question,
-            options: question.answerType === 'yes-no' 
-              ? ['Yes', 'No'] 
-              : question.options?.map((option) => option.optionText) || [],
-          }));
-          setQuestions(formattedQuestions);
-        } else {
-          console.error('API returned unexpected data format');
-          setQuestions([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch questions', error);
+  const fetchQuestions = async () => {
+    try {
+      const response = await Api.get(`/api/courses/${courseId}/questions`);
+      if (response && response.data && Array.isArray(response.data)) {
+        const formattedQuestions = response.data.map((question) => ({
+          ...question,
+          options: question.answerType === 'yes-no' 
+            ? ['Yes', 'No'] 
+            : question.options?.map((option) => option.optionText) || [],
+        }));
+        setQuestions(formattedQuestions);
+      } else {
+        console.error('API returned unexpected data format');
         setQuestions([]);
       }
-    };
-
-    checkDailySubmission();
-  }, [courseId]);
+    } catch (error) {
+      console.error('Failed to fetch questions', error);
+      setQuestions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (questionId, value) => {
     setFormData({
@@ -130,18 +116,6 @@ const YogoForm = () => {
     return (
       <CenteredContainer>
         <LoadingMessage>Loading your mindfulness journey...</LoadingMessage>
-      </CenteredContainer>
-    );
-  }
-
-  if (hasSubmittedToday) {
-    return (
-      <CenteredContainer>
-        <SubmittedMessage>
-          <Flower size={48} color="#4caf50" />
-          <h2>Peace Achieved</h2>
-          <p>You have already completed this mindfulness exercise today. Please come back tomorrow.</p>
-        </SubmittedMessage>
       </CenteredContainer>
     );
   }
