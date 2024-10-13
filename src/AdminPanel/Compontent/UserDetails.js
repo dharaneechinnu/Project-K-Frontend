@@ -4,7 +4,7 @@ import {
   ChakraProvider
 } from '@chakra-ui/react';
 import Api from '../../Api/Api';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import moment from 'moment'; // Import moment.js for date formatting
 
 const UserDetails = () => {
@@ -15,6 +15,7 @@ const UserDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserResponses, setSelectedUserResponses] = useState(null);
   const [loadingResponses, setLoadingResponses] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -69,7 +70,9 @@ const UserDetails = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setSelectedUserResponses(response.data);
+      console.log("Response of user : ", response.data);
+      setSelectedUserResponses(response.data.responseData || []); // Ensure responseData is at least an empty array
+      setAnalyticsData(response.data.analytics || {}); // Ensure analytics is an object
     } catch (err) {
       console.error('Failed to fetch responses', err);
       setError('Failed to load responses for the user.');
@@ -163,10 +166,10 @@ const UserDetails = () => {
               </Tbody>
             </Table>
 
-            {/* Graph to display responses over time */}
+            {/* Bar Chart to display responses over time */}
             <Box mt={5}>
               <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={selectedUserResponses.responses}>
+                <BarChart data={selectedUserResponses.responses}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="responseDate" 
@@ -175,11 +178,38 @@ const UserDetails = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="answer" stroke="#82ca9d" name="Answer in Green" />
-                  <Line type="monotone" dataKey="answer" stroke="#FFD700" name="Answer in Yellow" />
-                </LineChart>
+                  <Bar dataKey="answer" fill="#82ca9d" name="Answer" />
+                </BarChart>
               </ResponsiveContainer>
             </Box>
+          </Box>
+        )}
+
+        {analyticsData && (
+          <Box mt={5}>
+            <Text fontSize="2xl" mb={4}>Analytics</Text>
+            <Table variant="striped" colorScheme="blue">
+              <Thead>
+                <Tr>
+                  <Th>Question</Th>
+                  <Th>Yes Count</Th>
+                  <Th>No Count</Th>
+                  <Th>Total Multiple Choice</Th>
+                  <Th>Total Short Text</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {analyticsData.analyticsResults.map((result, index) => (
+                  <Tr key={index}>
+                    <Td>{result.questionText}</Td>
+                    <Td>{result.yesCount}</Td>
+                    <Td>{result.noCount}</Td>
+                    <Td>{result.multipleChoiceCounts.length}</Td>
+                    <Td>{result.shortTextResponses.length}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
           </Box>
         )}
       </Box>
