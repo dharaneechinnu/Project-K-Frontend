@@ -106,7 +106,7 @@ const AllCourseRequests = () => {
               <tr key={request._id}>
                 <td>{index + 1}</td>
                 <td>{request.userId}</td>
-                <td>{request.batchno}</td>
+                <td>{request.batchNumber}</td>
                 <td>{request.courseId}</td>
                 <td>
                   <ApproveButton onClick={() => handleApprove(request.courseId, request.userId)}>
