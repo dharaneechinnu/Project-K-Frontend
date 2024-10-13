@@ -29,7 +29,7 @@ const AddUser = () => {
     try {
       const token = localStorage.getItem('Admin-Token'); // Retrieve token from localStorage
 
-      const response = await Api.post('/Admin/register', formData, {
+      const response = await Api.post('/Admin/userRegsiter', formData, {
         headers: {
           Authorization: `Bearer ${token}`, // Send token in Authorization header
         },

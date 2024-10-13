@@ -11,6 +11,7 @@ const Home = () => {
   const [completedCourses, setCompletedCourses] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const courseGridRef = useRef(null);
+  const completedCoursesRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,10 +52,10 @@ const Home = () => {
     navigate('/learning-dashboard');
   };
 
-  const scrollCourses = (direction) => {
-    if (courseGridRef.current) {
+  const scrollCourses = (direction, ref) => {
+    if (ref.current) {
       const scrollAmount = 300;
-      courseGridRef.current.scrollBy({
+      ref.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
@@ -69,7 +70,7 @@ const Home = () => {
           <div className="course-container">
             <button 
               className="scroll-button scroll-left"
-              onClick={() => scrollCourses('left')}
+              onClick={() => scrollCourses('left', courseGridRef)}
             >
               <ChevronLeft size={24} />
             </button>
@@ -93,7 +94,7 @@ const Home = () => {
             </div>
             <button 
               className="scroll-button scroll-right"
-              onClick={() => scrollCourses('right')}
+              onClick={() => scrollCourses('right', courseGridRef)}
             >
               <ChevronRight size={24} />
             </button>
@@ -104,20 +105,34 @@ const Home = () => {
       return (
         <div className="content-card">
           <h3><Award className="section-icon" /> Completed Courses</h3>
-          <div className="completed-list">
-            {completedCourses.length > 0 ? (
-              completedCourses.map((course, index) => (
-                <div key={index} className="completed-item">
-                  <div>
-                    <h4>{course.courseName}</h4>
-                    <p><Calendar className="info-icon" /> Completed: {new Date(course.completedAt).toLocaleDateString()}</p>
+          <div className="course-container">
+            <button 
+              className="scroll-button scroll-left"
+              onClick={() => scrollCourses('left', completedCoursesRef)}
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <div className="completed-list" ref={completedCoursesRef}>
+              {completedCourses.length > 0 ? (
+                completedCourses.map((course, index) => (
+                  <div key={index} className="completed-item">
+                    <div>
+                      <h4>{course.courseName}</h4>
+                      <p><Calendar className="info-icon" /> Completed: {new Date(course.completedAt).toLocaleDateString()}</p>
+                    </div>
+                    <CheckCircle className="check-icon" />
                   </div>
-                  <CheckCircle className="check-icon" />
-                </div>
-              ))
-            ) : (
-              <p>No completed courses yet.</p>
-            )}
+                ))
+              ) : (
+                <p className="no-courses">No completed courses yet.</p>
+              )}
+            </div>
+            <button 
+              className="scroll-button scroll-right"
+              onClick={() => scrollCourses('right', completedCoursesRef)}
+            >
+              <ChevronRight size={24} />
+            </button>
           </div>
         </div>
       );
@@ -178,6 +193,112 @@ const Home = () => {
       </main>
       
       <style jsx>{`
+
+      .course-container {
+  position: relative;
+  width: 94%;
+  padding: 0 40px;
+}
+
+.course-grid,
+.completed-list {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.course-grid::-webkit-scrollbar,
+.completed-list::-webkit-scrollbar {
+  display: none;
+}
+
+.course-item,
+.completed-item {
+  min-width: 280px;
+  max-width: 400px;
+  flex: 0 0 auto;
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+}
+
+.course-content,
+.completed-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.course-content h4,
+.completed-item h4 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: #f0f2f5;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.scroll-button:hover {
+  background: #e0e3e9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.scroll-left {
+  left: -15px;
+}
+
+.scroll-right {
+  right: -15px;
+}
+
+.no-courses {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .course-container {
+    padding: 0;
+  }
+
+  .scroll-button {
+    display: none;
+  }
+
+  .course-grid,
+  .completed-list {
+    padding: 1rem;
+  }
+
+  .course-item,
+  .completed-item {
+    min-width: 260px;
+  }
+}
         .home-container {
           min-height: 100vh;
           background-color: #f0f2f5;
@@ -481,7 +602,7 @@ const Home = () => {
 
         .completed-list {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           gap: 1rem;
         }
 
@@ -493,6 +614,7 @@ const Home = () => {
           padding: 1rem 1.5rem;
           border-radius: 12px;
           transition: all 0.3s ease;
+          min-width:400px;
         }
 
         .completed-item:hover {
