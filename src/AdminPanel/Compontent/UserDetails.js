@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { 
+  Box, Button, Input, Table, Thead, Tbody, Tr, Th, Td, Text, Spinner, Alert, AlertIcon, 
+  ChakraProvider
+} from '@chakra-ui/react';
 import Api from '../../Api/Api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import moment from 'moment'; // Import moment.js for date formatting
 
 const UserDetails = () => {
   const [userDetails, setUserDetails] = useState([]);
@@ -8,25 +13,24 @@ const UserDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUserResponses, setSelectedUserResponses] = useState(null);
+  const [loadingResponses, setLoadingResponses] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
-        
+        const token = localStorage.getItem('Admin-Token');
         if (!token) {
           setError('No token found. Please login again.');
           setLoading(false);
           return;
         }
 
-        // Send token in the Authorization header
         const response = await Api.get('/Admin/alluser', {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-         console.log("Success ")
         setUserDetails(response.data);
         setFilteredUserDetails(response.data);
         setLoading(false);
@@ -43,7 +47,6 @@ const UserDetails = () => {
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-
     if (term.trim() === "") {
       setFilteredUserDetails(userDetails);
     } else {
@@ -57,121 +60,131 @@ const UserDetails = () => {
     }
   };
 
-  if (loading) {
-    return <LoadingMessage>Loading user details...</LoadingMessage>;
-  }
-
-  if (error) {
-    return <ErrorMessage>{error}</ErrorMessage>;
-  }
+  const handleViewResponses = async (studentId) => {
+    setLoadingResponses(true);
+    try {
+      const token = localStorage.getItem('Admin-Token');
+      const response = await Api.get(`/Admin/responses/${studentId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setSelectedUserResponses(response.data);
+    } catch (err) {
+      console.error('Failed to fetch responses', err);
+      setError('Failed to load responses for the user.');
+    }
+    setLoadingResponses(false);
+  };
 
   const isValidPhoneNumber = (phoneNumber) => {
     const phoneRegex = /^[0-9]{7,15}$/;
     return phoneRegex.test(phoneNumber);
   };
 
+  if (loading) {
+    return <Spinner size="xl" color="blue.500" />;
+  }
+
+  if (error) {
+    return <Alert status="error"><AlertIcon />{error}</Alert>;
+  }
+
   return (
-    <Section>
-      <SectionTitle>User Details</SectionTitle>
-      <SearchInput
-        type="text"
-        placeholder="Search by name, email, or student ID..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
-      <StyledTable>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Student ID</th>
-            <th>Age</th>
-            <th>Phone Number</th>
-            <th>Batch Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUserDetails.length > 0 ? (
-            filteredUserDetails.map((user, index) => (
-              <tr key={user._id}>
-                <td>{index + 1}</td> {/* Display the index + 1 as the user ID count */}
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.studentId}</td>
-                <td>{user.age}</td>
-                <td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</td>
-                <td>{user.batchno || 'No Batch'}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7" style={{ textAlign: 'center' }}>
-                No users found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </StyledTable>
-    </Section>
+    <ChakraProvider>
+      <Box p={5} bg="white" color="black">
+        <Text fontSize="2xl" mb={4}>User Details</Text>
+        <Input
+          placeholder="Search by name, email, or student ID..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          mb={4}
+        />
+        <Table variant="striped" colorScheme="blue">
+          <Thead>
+            <Tr>
+              <Th>#</Th>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th>Student ID</Th>
+              <Th>Age</Th>
+              <Th>Phone Number</Th>
+              <Th>Batch Number</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {filteredUserDetails.length > 0 ? (
+              filteredUserDetails.map((user, index) => (
+                <Tr key={user._id}>
+                  <Td>{index + 1}</Td>
+                  <Td>{user.name}</Td>
+                  <Td>{user.email}</Td>
+                  <Td>{user.studentId}</Td>
+                  <Td>{user.age}</Td>
+                  <Td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</Td>
+                  <Td>{user.batchno || 'No Batch'}</Td>
+                  <Td>
+                    <Button onClick={() => handleViewResponses(user.studentId)} colorScheme="blue" size="sm">
+                      View Responses
+                    </Button>
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan="8" textAlign="center">No users found.</Td>
+              </Tr>
+            )}
+          </Tbody>
+        </Table>
+
+        {loadingResponses && <Spinner size="lg" color="blue.500" mt={5} />}
+
+        {selectedUserResponses && (
+          <Box mt={5}>
+            <Text fontSize="xl" mb={3}>Responses for Student ID: {selectedUserResponses.studentId}</Text>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>Question</Th>
+                  <Th>Answer</Th>
+                  <Th>Response Date</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {selectedUserResponses.responses.map((response, index) => (
+                  <Tr key={index}>
+                    <Td>{response.questionText}</Td>
+                    <Td>{response.answer}</Td>
+                    <Td>{new Date(response.responseDate).toLocaleDateString()}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+
+            {/* Graph to display responses over time */}
+            <Box mt={5}>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={selectedUserResponses.responses}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="responseDate" 
+                    tickFormatter={(date) => moment(date).format('YYYY-MM-DD')} 
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="answer" stroke="#82ca9d" name="Answer in Green" />
+                  <Line type="monotone" dataKey="answer" stroke="#FFD700" name="Answer in Yellow" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          </Box>
+        )}
+      </Box>
+    </ChakraProvider>
   );
 };
-
-// Styled components
-const Section = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: auto;
-  max-height: 500px;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #4a90e2;
-  margin-bottom: 20px;
-`;
-
-const SearchInput = styled.input`
-  width: 98%;
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-`;
-
-const StyledTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  th {
-    background-color: #4a90e2;
-    color: white;
-  }
-
-  tr:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
-const LoadingMessage = styled.p`
-  font-size: 16px;
-  color: #4a90e2;
-  text-align: center;
-`;
-
-const ErrorMessage = styled.p`
-  color: #dc2626;
-  text-align: center;
-`;
 
 export default UserDetails;

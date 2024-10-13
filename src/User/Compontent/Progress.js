@@ -18,45 +18,57 @@ const MindfulnessProgress = () => {
         }
     }, [userId]);
 
+    // Fetch unlocked courses with error handling and logging
     const fetchUnlockedCourses = async () => {
         try {
+            console.log('Fetching unlocked courses for user:', userId);
             const { data } = await Api.get(`/course/unlocked-courses/${userId}`);
-            // Fix: access the array inside the unlockedCourses object
             if (data && Array.isArray(data.unlockedCourses)) {
                 setPurchasedCourses(data.unlockedCourses); // Correctly set the array from unlockedCourses
+                console.log('Unlocked courses fetched:', data.unlockedCourses);
             } else {
-                console.error('Unexpected API response structure');
-                setPurchasedCourses([]); // Fallback to an empty array if data is not as expected
+                setPurchasedCourses([]);
+                throw new Error('Unexpected API response structure.');
             }
-            console.log("Fetched unlocked courses in progress: ", data);
         } catch (error) {
-            console.error('Failed to fetch unlocked courses', error);
-            setPurchasedCourses([]); // Fallback to an empty array on error
+            setPurchasedCourses([]);
+            setError('Failed to fetch unlocked courses.');
+            console.error('Error fetching unlocked courses:', error.message || error);
         }
     };
 
+    // Fetch responses based on course with error handling and logging
     const fetchResponses = async (courseId) => {
         try {
+            console.log('Fetching responses for course:', courseId);
             const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
             const { data } = await Api.get(`response/analytics/${courseId}/${studentId}`);
-            console.log('Fetched responses:', data);
-            if (data && data.questions) {
-                setResponseData(data.questions);
+            if (data && data.analytics) {
+                // Format responseData to include the dates for each response
+                const formattedData = data.analytics.map(question => ({
+                    ...question,
+                    responseDates: question.responseDates.map(date => new Date(date).toLocaleDateString())
+                }));
+                setResponseData(formattedData);
+                console.log('Response data fetched:', formattedData);
             } else {
                 setResponseData([]);
+                throw new Error('No response data available for this course.');
             }
             setError(null);
         } catch (error) {
-            console.error('Failed to fetch responses', error);
             setResponseData([]); // Set empty data if there's an error
-            setError('No response data available for this course.');
+            setError(error.message || 'Error fetching response data.');
+            console.error('Error fetching responses:', error.message || error);
         }
     };
 
+    // Handle stage click and fetch responses for the selected course
     const handleStageClick = (index) => {
         setActiveStage(index + 1);
         const selectedCourse = purchasedCourses[index];
         if (selectedCourse) {
+            console.log('Selected course:', selectedCourse.courseName);
             fetchResponses(selectedCourse.courseId);
         }
     };
@@ -69,7 +81,7 @@ const MindfulnessProgress = () => {
                 <Card>
                     <CardTitle>Personal Growth Stages</CardTitle>
                     <StagesContainer>
-                        {Array.isArray(purchasedCourses) && purchasedCourses.length > 0 ? (
+                        {purchasedCourses.length > 0 ? (
                             purchasedCourses.map((course, index) => (
                                 <Stage
                                     key={index}
@@ -97,19 +109,28 @@ const MindfulnessProgress = () => {
                         <ErrorMessage>{error}</ErrorMessage>
                     ) : (
                         <ChartContainer>
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={400}>
                                 <LineChart data={responseData}>
                                     <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="questionText" />
+                                    {/* Display responseDate in local format */}
+                                    <XAxis dataKey="responseDates" label="Response Date" />
                                     <YAxis />
                                     <Tooltip />
                                     <Legend />
-                                    <Line type="monotone" dataKey="yesCount" stroke="#82ca9d" activeDot={{ r: 8 }} name="Yes Count" />
-                                    <Line type="monotone" dataKey="noCount" stroke="#8884d8" activeDot={{ r: 8 }} name="No Count" />
-                                    {responseData.length > 0 && responseData[0].options &&
-                                      Object.keys(responseData[0].options).map((option, index) => (
-                                        <Line key={index} type="monotone" dataKey={`options.${option}`} stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`} name={option} />
-                                    ))}
+                                    <Line type="monotone" dataKey="yesCount" stroke="#82ca9d" name="Yes Count" />
+                                    <Line type="monotone" dataKey="noCount" stroke="#8884d8" name="No Count" />
+                                    {/* Render dynamic multiple-choice lines */}
+                                    {responseData.length > 0 && responseData[0].multipleChoiceCounts &&
+                                        Object.keys(responseData[0].multipleChoiceCounts).map((option, index) => (
+                                            <Line
+                                                key={index}
+                                                type="monotone"
+                                                dataKey={`multipleChoiceCounts.${option}`}
+                                                stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                                                name={`Option ${option}`}
+                                            />
+                                        ))
+                                    }
                                 </LineChart>
                             </ResponsiveContainer>
                         </ChartContainer>
@@ -133,22 +154,21 @@ const MindfulnessProgress = () => {
     );
 };
 
-
-// Styled components
+// Styled Components
 const Container = styled.div`
   background: #f0f2f5;
   padding: 1.5rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top:20px;
-  margin-bottom:10px;
+  margin-top: 20px;
+  margin-bottom: 10px;
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   color: #333;
   margin-bottom: 2rem;
-  text-align:center;
+  text-align: center;
 `;
 
 const GridContainer = styled.div`
@@ -172,7 +192,6 @@ const CardTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   color: #4a90e2;
-  font-weight:bold;
   margin-bottom: 1rem;
 `;
 
@@ -226,7 +245,7 @@ const TipButton = styled.button`
   transition: background-color 0.3s;
 
   &:hover {
-    background-color:#4a90e3;
+    background-color: #4a90e3;
   }
 `;
 

@@ -26,7 +26,7 @@ const YogoForm = () => {
           ...question,
           options: question.answerType === 'yes-no' 
             ? ['Yes', 'No'] 
-            : question.options?.map((option) => option.optionText) || [],
+            : question.options?.map((option) => option.optionText) || [],  // Handle undefined options
         }));
         setQuestions(formattedQuestions);
       } else {
@@ -40,6 +40,7 @@ const YogoForm = () => {
       setLoading(false);
     }
   };
+  
 
   const handleInputChange = (questionId, value) => {
     setFormData({
@@ -71,23 +72,24 @@ const YogoForm = () => {
     e.preventDefault();
     const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
     const token = localStorage.getItem('token');
-
+  
     const submissionData = {
       courseId,
       studentId,
       responses: questions.map((question) => ({
-        questionId: question._id,
-        answer: formData[question._id] || "",
+        questionId: question._id || question.id,  // Use `_id` or `id` depending on the response format
+        answer: formData[question._id || question.id] || "",
         questionText: question.questionText,
         answerType: question.answerType,
         options: question.options,
       })),
     };
-
+    console.log(submissionData)
     try {
       await Api.post(`/api/courses/${courseId}/submit-daily-responses`, submissionData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+     
       alert('Responses submitted successfully!');
       navigate('/UserPanel');
     } catch (error) {
@@ -95,6 +97,7 @@ const YogoForm = () => {
       alert('Failed to submit responses. Please try again.');
     }
   };
+  
 
   const nextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
