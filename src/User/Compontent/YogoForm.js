@@ -17,18 +17,7 @@ const YogoForm = () => {
 
   useEffect(() => {
     const checkDailySubmission = async () => {
-      const studentId = JSON.parse(localStorage.getItem('user'))?.studentId;
-      try {
-        const response = await Api.post(`/api/courses/${courseId}/has-submitted-today`, { studentId ,courseId});
-        setHasSubmittedToday(response.data.hasSubmittedToday);
-        if (!response.data.hasSubmittedToday) {
-          await fetchQuestions();
-        }
-      } catch (error) {
-        console.error('Error checking daily submission', error);
-      } finally {
-        setLoading(false);
-      }
+     await fetchQuestions();
     };
 
     const fetchQuestions = async () => {
