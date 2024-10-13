@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import backgroundVideo from '../Assest/bg2.mp4';
+import { Link } from "react-router-dom";
 
 const TakeCourse = () => {
   return (
@@ -11,7 +12,9 @@ const TakeCourse = () => {
       </BackgroundVideo>
       <Content>
         <Text>Discover WHO AM I?</Text>
-        <Button>By help of your mind</Button>
+        <Link to={'/login'}>
+          <Button>By help of your mind</Button>
+        </Link>
       </Content>
     </Container>
   );
