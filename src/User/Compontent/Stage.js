@@ -54,9 +54,18 @@ const Stage = () => {
   const fetchAllCourses = async () => {
     try {
       setLoadingCourses(true);
-      const { data } = await Api.get('/course/get-courses');
+  
+      // Add the token to the headers
+        const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage; // Replace this with the actual token
+  
+      const { data } = await Api.get('/course/get-courses', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       console.log(data); // Log the response to see its structure
-
+  
       if (data && Array.isArray(data.courses)) {
         setCourseDetails(data.courses);
       } else {
@@ -70,7 +79,7 @@ const Stage = () => {
       setLoadingCourses(false);
     }
   };
-
+  
   const handleRequestCourse = async (courseId, courseName) => {
     if (!userId) {
       alert('User is not logged in. Please log in to request a course.');
