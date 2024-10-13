@@ -68,7 +68,15 @@ const pricingData = [
 const Pricing = () => {
   const [hoveredPlan, setHoveredPlan] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showMore, setShowMore] = useState(null);
 
+  const toggleShowMore = (index) => {
+    if (showMore === index) {
+      setShowMore(null); // Hide the additional features if already shown
+    } else {
+      setShowMore(index); // Show additional features for this specific plan
+    }
+  };
   return (
     <Container id='pricing'>
       <Title>
@@ -95,25 +103,35 @@ const Pricing = () => {
             key={index}
             onMouseEnter={() => setHoveredPlan(index)}
             onMouseLeave={() => setHoveredPlan(null)}
-            onClick={() => setSelectedPlan(index)}
             as={motion.div}
             whileHover={{ scale: 1.05, boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)" }}
-            whileTap={{ scale: 0.95 }}
+            // whileTap={{ scale: 0.95 }}
           >
             <PlanTitle style={{ color: plan.color }}>{plan.title}</PlanTitle>
             {/* <PriceRate>₹{plan.price.toFixed(0)}<span></span></PriceRate>    */}
             <FeatureList>
-              {plan.features.map((feature, idx) => (
+              {plan.features.slice(0, 5).map((feature, idx) => (
                 <FeatureItem key={idx}>
                   <FaCheck color={plan.color} /> {feature}
                 </FeatureItem>
               ))}
+              {showMore === index && plan.features.slice(5).map((feature, idx) => (
+                <FeatureItem key={idx + 5}>
+                  <FaCheck color={plan.color} /> {feature}
+                </FeatureItem>
+              ))}
             </FeatureList>
+            {plan.features.length > 5 && (
+              <ShowMoreButton onClick={() => toggleShowMore(index)}>
+                {showMore === index ? "Show Less" : "Show More"}
+              </ShowMoreButton>
+            )}
             <PriceButton
               style={{ backgroundColor: plan.color }}
               as={motion.button}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              onClick={() => setSelectedPlan(index)}
             >
               Choose Plan
             </PriceButton>
@@ -152,13 +170,12 @@ const Pricing = () => {
                   <li key={idx}>{feature}</li>
                 ))}
               </ul>
-              <p>Start your transformative journey today for just ${pricingData[selectedPlan].price.toFixed(2)}/Course.</p>
+              <p>Start your transformative journey today for just ₹{pricingData[selectedPlan].price.toFixed(2)}/Course.</p>
               <Link to={"/login"}>
                   <ModalButton style={{ backgroundColor: pricingData[selectedPlan].color }}>
                     Enroll Now
                   </ModalButton>
               </Link>
-             
             </ModalContent>
           </ModalOverlay>
         )}
@@ -319,7 +336,25 @@ const ModalButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 1rem;
+  margin-top: 0rem;
 `;
+
+const ShowMoreButton = styled.button`
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0px;
+  margin-bottom: 20px;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.2s;
+
+  &:hover {
+    color: #007bff; /* Change to a different color on hover */
+    transform: scale(1.05); /* Slightly enlarge the button */
+  }
+`;
+
 
 export default Pricing;

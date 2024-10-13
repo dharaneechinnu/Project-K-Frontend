@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flower, Send } from 'lucide-react';
+import { Flower, Send, ArrowLeft } from 'lucide-react';
 import Api from '../../Api/Api';
 import { keyframes } from 'styled-components';
 
@@ -35,7 +35,6 @@ const YogoForm = () => {
       try {
         const response = await Api.get(`/api/courses/${courseId}/questions`);
         if (response && response.data && Array.isArray(response.data)) {
-          setQuestions(response.data);
           const formattedQuestions = response.data.map((question) => ({
             ...question,
             options: question.answerType === 'yes-no' 
@@ -123,6 +122,10 @@ const YogoForm = () => {
     }
   };
 
+  const handleBackClick = () => {
+    navigate('/UserPanel');
+  };
+
   if (loading) {
     return (
       <CenteredContainer>
@@ -147,6 +150,10 @@ const YogoForm = () => {
     <PageWrapper>
       <FormWrapper>
         <Header>
+          <BackButton onClick={handleBackClick}>
+            <ArrowLeft size={24} />
+            Back
+          </BackButton>
           <Flower size={48} color="#4caf50" />
           <h2>Mindfulness Questionnaire</h2>
         </Header>
@@ -234,11 +241,6 @@ const float = keyframes`
   100% { transform: translateY(0px); }
 `;
 
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`;
-
 const PageWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -259,18 +261,40 @@ const FormWrapper = styled.div`
 `;
 
 const Header = styled.div`
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-bottom: 30px;
 
   h2 {
-    margin-left: 15px;
+    margin-top: 15px;
     color: #3498db;
   }
 
-  svg {
+  svg:not(:first-child) {
     animation: ${float} 3s ease-in-out infinite;
+  }
+`;
+
+const BackButton = styled.button`
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  font-size: 16px;
+  color: #3498db;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #2980b9;
   }
 `;
 
