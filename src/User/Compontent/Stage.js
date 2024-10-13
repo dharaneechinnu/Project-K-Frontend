@@ -304,6 +304,7 @@ const StageCard = styled.div`
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   cursor: pointer;
+  width:380px;
 
   ${({ active }) => active && `
     transform: translateY(-5px);

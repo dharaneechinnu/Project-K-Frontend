@@ -101,7 +101,7 @@ const Pricing = () => {
             whileTap={{ scale: 0.95 }}
           >
             <PlanTitle style={{ color: plan.color }}>{plan.title}</PlanTitle>
-            <PriceRate>₹{plan.price.toFixed(0)}<span></span></PriceRate>   
+            {/* <PriceRate>₹{plan.price.toFixed(0)}<span></span></PriceRate>    */}
             <FeatureList>
               {plan.features.map((feature, idx) => (
                 <FeatureItem key={idx}>
