@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, Button, Input, Table, Thead, Tbody, Tr, Th, Td, Text, Spinner, Alert, AlertIcon, 
-  ChakraProvider
-} from '@chakra-ui/react';
-import Api from '../../Api/Api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import moment from 'moment'; // Import moment.js for date formatting
+import moment from 'moment';
+import Api from '../../Api/Api';
 
 const UserDetails = () => {
   const [userDetails, setUserDetails] = useState([]);
@@ -82,108 +78,179 @@ const UserDetails = () => {
     return phoneRegex.test(phoneNumber);
   };
 
+  const styles = {
+    container: {
+      padding: '20px',
+      backgroundColor: '#f0f4f8',
+      color: '#333',
+      fontFamily: 'Arial, sans-serif',
+    },
+    header: {
+      fontSize: '24px',
+      marginBottom: '20px',
+      color: '#2c3e50',
+    },
+    input: {
+      width: '100%',
+      padding: '10px',
+      marginBottom: '20px',
+      border: '1px solid #ddd',
+      borderRadius: '4px',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      marginBottom: '20px',
+    },
+    th: {
+      backgroundColor: '#3498db',
+      color: 'white',
+      padding: '12px',
+      textAlign: 'left',
+    },
+    td: {
+      padding: '12px',
+      borderBottom: '1px solid #ddd',
+    },
+    button: {
+      backgroundColor: '#3498db',
+      color: 'white',
+      border: 'none',
+      padding: '8px 12px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+    responseContainer: {
+      marginTop: '20px',
+      padding: '20px',
+      backgroundColor: 'white',
+      borderRadius: '4px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    },
+    chartContainer: {
+      height: '400px',
+      marginTop: '20px',
+    },
+    loadingSpinner: {
+      display: 'inline-block',
+      width: '50px',
+      height: '50px',
+      border: '3px solid rgba(0,0,0,.1)',
+      borderRadius: '50%',
+      borderTopColor: '#3498db',
+      animation: 'spin 1s ease-in-out infinite',
+    },
+    '@keyframes spin': {
+      to: { transform: 'rotate(360deg)' }
+    },
+    errorMessage: {
+      backgroundColor: '#e74c3c',
+      color: 'white',
+      padding: '10px',
+      borderRadius: '4px',
+      marginBottom: '20px',
+    },
+  };
+
   if (loading) {
-    return <Spinner size="xl" color="blue.500" />;
+    return <div style={styles.loadingSpinner}></div>;
   }
 
   if (error) {
-    return <Alert status="error"><AlertIcon />{error}</Alert>;
+    return <div style={styles.errorMessage}>{error}</div>;
   }
 
   return (
-    <ChakraProvider>
-      <Box p={5} bg="white" color="black">
-        <Text fontSize="2xl" mb={4}>User Details</Text>
-        <Input
-          placeholder="Search by name, email, or student ID..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          mb={4}
-        />
-        <Table variant="striped" colorScheme="blue">
-          <Thead>
-            <Tr>
-              <Th>#</Th>
-              <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Student ID</Th>
-              <Th>Age</Th>
-              <Th>Phone Number</Th>
-              <Th>Batch Number</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {filteredUserDetails.length > 0 ? (
-              filteredUserDetails.map((user, index) => (
-                <Tr key={user._id}>
-                  <Td>{index + 1}</Td>
-                  <Td>{user.name}</Td>
-                  <Td>{user.email}</Td>
-                  <Td>{user.studentId}</Td>
-                  <Td>{user.age}</Td>
-                  <Td>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</Td>
-                  <Td>{user.batchno || 'No Batch'}</Td>
-                  <Td>
-                    <Button onClick={() => handleViewResponses(user.studentId)} colorScheme="blue" size="sm">
-                      View Responses
-                    </Button>
-                  </Td>
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan="8" textAlign="center">No users found.</Td>
-              </Tr>
-            )}
-          </Tbody>
-        </Table>
+    <div style={styles.container}>
+      <h1 style={styles.header}>User Details</h1>
+      <input
+        style={styles.input}
+        placeholder="Search by name, email, or student ID..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+      <table style={styles.table}>
+        <thead>
+          <tr>
+            <th style={styles.th}>#</th>
+            <th style={styles.th}>Name</th>
+            <th style={styles.th}>Email</th>
+            <th style={styles.th}>Student ID</th>
+            <th style={styles.th}>Age</th>
+            <th style={styles.th}>Phone Number</th>
+            <th style={styles.th}>Batch Number</th>
+            <th style={styles.th}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUserDetails.length > 0 ? (
+            filteredUserDetails.map((user, index) => (
+              <tr key={user._id}>
+                <td style={styles.td}>{index + 1}</td>
+                <td style={styles.td}>{user.name}</td>
+                <td style={styles.td}>{user.email}</td>
+                <td style={styles.td}>{user.studentId}</td>
+                <td style={styles.td}>{user.age}</td>
+                <td style={styles.td}>{isValidPhoneNumber(user.mobileno) ? user.mobileno : 'Invalid'}</td>
+                <td style={styles.td}>{user.batchno || 'No Batch'}</td>
+                <td style={styles.td}>
+                  <button style={styles.button} onClick={() => handleViewResponses(user.studentId)}>
+                    View Responses
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" style={{...styles.td, textAlign: 'center'}}>No users found.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-        {loadingResponses && <Spinner size="lg" color="blue.500" mt={5} />}
+      {loadingResponses && <div style={styles.loadingSpinner}></div>}
 
-        {selectedUserResponses && (
-          <Box mt={5}>
-            <Text fontSize="xl" mb={3}>Responses for Student ID: {selectedUserResponses.studentId}</Text>
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>Question</Th>
-                  <Th>Answer</Th>
-                  <Th>Response Date</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {selectedUserResponses.responses.map((response, index) => (
-                  <Tr key={index}>
-                    <Td>{response.questionText}</Td>
-                    <Td>{response.answer}</Td>
-                    <Td>{new Date(response.responseDate).toLocaleDateString()}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
+      {selectedUserResponses && (
+        <div style={styles.responseContainer}>
+          <h2 style={styles.header}>Responses for Student ID: {selectedUserResponses.studentId}</h2>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Question</th>
+                <th style={styles.th}>Answer</th>
+                <th style={styles.th}>Response Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedUserResponses.responses.map((response, index) => (
+                <tr key={index}>
+                  <td style={styles.td}>{response.questionText}</td>
+                  <td style={styles.td}>{response.answer}</td>
+                  <td style={styles.td}>{new Date(response.responseDate).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-            {/* Graph to display responses over time */}
-            <Box mt={5}>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={selectedUserResponses.responses}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="responseDate" 
-                    tickFormatter={(date) => moment(date).format('YYYY-MM-DD')} 
-                  />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="answer" stroke="#82ca9d" name="Answer in Green" />
-                  <Line type="monotone" dataKey="answer" stroke="#FFD700" name="Answer in Yellow" />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </Box>
-        )}
-      </Box>
-    </ChakraProvider>
+          <div style={styles.chartContainer}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={selectedUserResponses.responses}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="responseDate" 
+                  tickFormatter={(date) => moment(date).format('YYYY-MM-DD')} 
+                />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="answer" stroke="#82ca9d" name="Answer in Green" />
+                <Line type="monotone" dataKey="answer" stroke="#FFD700" name="Answer in Yellow" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
