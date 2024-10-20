@@ -22,27 +22,32 @@ const Home = () => {
       const fetchedUserData = JSON.parse(localstorage);
       setUserData(fetchedUserData);
       
-      const StudentId = fetchedUserData?.studentId;
-      if (StudentId) {
-        fetchCourses(StudentId);
+      const studentId = fetchedUserData?.studentId;
+      if (studentId) {
+        console.log("StudentId : ",studentId)
+        fetchCourses(studentId);
       }
     }
   }, []);
 
-  const fetchCourses = async (StudentId) => {
+  const fetchCourses = async (studentId) => {
     try {
-      const enrolledResponse = await Api.get(`/course/enrolled/${StudentId}`);
+      // Fetch enrolled courses
+      const enrolledResponse = await Api.get(`/course/enrolled/${studentId}`);
       const enrolledCoursesData = enrolledResponse.data?.enrolledCourses || enrolledResponse.data || [];
+      console.log('Enrolled Courses Data:', enrolledCoursesData); // Log enrolled courses data
       setEnrolledCourses(Array.isArray(enrolledCoursesData) ? enrolledCoursesData : []);
-
-      const completedResponse = await Api.get(`/course/completed/${StudentId}`);
+  
+      // Fetch completed courses
+      const completedResponse = await Api.get(`/course/completed/${studentId}`);
       const completedCoursesData = completedResponse.data?.completedCourses || completedResponse.data || [];
+      console.log('Completed Courses Data:', completedCoursesData); // Log completed courses data
       setCompletedCourses(Array.isArray(completedCoursesData) ? completedCoursesData : []);
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
   };
-
+  
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/login');

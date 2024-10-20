@@ -29,7 +29,8 @@ const Stage = () => {
 
   const userId = JSON.parse(localStorage.getItem('user'))?.studentId;
   const Bacthno = JSON.parse(localStorage.getItem('user'))?.batchno;
-
+  const name = JSON.parse(localStorage.getItem('user'))?.name;
+  const mobileno = JSON.parse(localStorage.getItem('user'))?.mobileno;
   useEffect(() => {
     if (userId) {
       fetchUnlockedCourses();
@@ -92,8 +93,8 @@ const Stage = () => {
     }
   
     try {
-      console.log(userId, courseId, Bacthno, courseName);
-      const { data } = await Api.post('/course/request-course', { userId, courseId, courseName, Bacthno });
+      console.log(userId, courseId, Bacthno, courseName,name,mobileno);
+      const { data } = await Api.post('/course/request-course', { userId,name,mobileno, courseId, courseName, Bacthno });
        console.log(data);
 
       if (data && data.message) {

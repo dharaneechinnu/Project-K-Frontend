@@ -1,209 +1,251 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import {
+  Box,
+  Button,
+  Flex,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Text,
+  Spinner,
+  Alert,
+  AlertIcon,
+  ChakraProvider,
+  ButtonGroup,
+} from '@chakra-ui/react';
 import Api from '../../Api/Api';
 
 const AllCourseRequests = () => {
-  const [courseRequests, setCourseRequests] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [approvedRequests, setApprovedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('pending'); // Tracks the current tab: 'pending' or 'approved'
 
   useEffect(() => {
-    const fetchAllCourseRequests = async () => {
+    const fetchCourseRequests = async () => {
       try {
         const token = localStorage.getItem('Admin-Token'); // Get the token from localStorage
-
-        if (!token) {
-          setError('No token found. Please login again.');
-          setLoading(false);
-          return;
-        }
-
         const response = await Api.get('/Admin/get-all-course-requests', {
           headers: {
-            Authorization: `Bearer ${token}`, // Send token in Authorization header
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        console.log(response.data);
-        setCourseRequests(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to fetch course requests', err);
+        // Assuming you have state variables for pending and approved requests
+        setPendingRequests(response.data.pendingRequests);
+        setApprovedRequests(response.data.approvedRequests);
+        setLoading(false); // Mark loading as false after fetching data
+      } catch (error) {
+        console.error('Failed to fetch course requests', error);
         setError('Failed to load course requests.');
-        setLoading(false);
+        setLoading(false); // Ensure loading is set to false even on error
       }
     };
 
-    fetchAllCourseRequests();
+    fetchCourseRequests();
   }, []);
 
-  const handleApprove = async (courseId, userId) => {
+  const handleApprove = async (courseId, studentId) => {
     try {
       const token = localStorage.getItem('Admin-Token'); // Get the token again
 
-      console.log("Approving course with courseId:", courseId, "and userId:", userId);
-      const response = await Api.post('/Admin/approve-course-request', { courseId, userId }, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Send token in Authorization header
-        },
-      });
+      console.log('Approving course with courseId:', courseId, 'and studentId:', studentId);
+      const response = await Api.post(
+        '/Admin/approve-course-request',
+        { courseId, studentId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in Authorization header
+          },
+        }
+      );
 
       alert(response.data.message);
 
-      // Remove the request from the list after approval
-      setCourseRequests(courseRequests.filter(request => request.courseId !== courseId));
+      // Update pending and approved lists after approval
+      const updatedPendingRequests = pendingRequests.filter((request) => request.courseId !== courseId);
+      const approvedRequest = pendingRequests.find((request) => request.courseId === courseId);
+      setPendingRequests(updatedPendingRequests);
+      setApprovedRequests([...approvedRequests, { ...approvedRequest, approve: true }]);
     } catch (err) {
       console.error('Failed to approve course request', err);
       alert('Error approving course request.');
     }
   };
 
-  const handleDeny = async (courseId, userId) => {
+  const handleDeny = async (courseId, studentId) => {
     try {
-      const token = localStorage.getItem('Admin-Token'); // Get the token again
+      const token = localStorage.getItem('Admin-Token'); // Get the token
 
-      console.log("Denying course with courseId:", courseId, "and userId:", userId);
-      const response = await Api.post('/course/deny-course-request', { courseId, userId }, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Send token in Authorization header
-        },
-      });
+      console.log('Denying course with courseId:', courseId, 'and studentId:', studentId);
+      const response = await Api.post(
+        '/Admin/deny-course-request',
+        { courseId, studentId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in Authorization header
+          },
+        }
+      );
 
       alert(response.data.message);
 
-      // Remove the request from the list after denial
-      setCourseRequests(courseRequests.filter(request => request.courseId !== courseId));
+      // Update the pending requests after denial
+      setPendingRequests(pendingRequests.filter((request) => request.courseId !== courseId));
     } catch (err) {
       console.error('Failed to deny course request', err);
       alert('Error denying course request.');
     }
   };
 
+  const handleComplete = async (courseId, studentId) => {
+    try {
+      const token = localStorage.getItem('Admin-Token'); // Get the token
+
+      console.log('Marking course as complete with courseId:', courseId, 'and studentId:', studentId);
+      const response = await Api.post(
+        '/Admin/complete-course',
+        { courseId, studentId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in Authorization header
+          },
+        }
+      );
+
+      alert(response.data.message);
+
+      // Optionally update the UI after marking the course complete
+    } catch (err) {
+      console.error('Failed to complete course', err);
+      alert('Error marking course as complete.');
+    }
+  };
+
   if (loading) {
-    return <LoadingMessage>Loading course requests...</LoadingMessage>;
+    return <Spinner size="xl" color="blue.500" />;
   }
 
   if (error) {
-    return <ErrorMessage>{error}</ErrorMessage>;
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        {error}
+      </Alert>
+    );
   }
 
   return (
-    <Section>
-      <SectionTitle>All Course Requests</SectionTitle>
-      <StyledTable>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Student ID</th>
-            <th>Batch Number</th>
-            <th>Course ID</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {courseRequests.length > 0 ? (
-            courseRequests.map((request, index) => (
-              <tr key={request._id}>
-                <td>{index + 1}</td>
-                <td>{request.userId}</td>
-                <td>{request.batchNumber}</td>
-                <td>{request.courseId}</td>
-                <td>
-                  <ApproveButton onClick={() => handleApprove(request.courseId, request.userId)}>
-                    Approve
-                  </ApproveButton>
-                  <DenyButton onClick={() => handleDeny(request.courseId, request.userId)}>
-                    Deny
-                  </DenyButton>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5" style={{ textAlign: 'center' }}>
-                No course requests found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </StyledTable>
-    </Section>
+    <ChakraProvider>
+      <Box p={5}>
+        {/* Tab Buttons */}
+        <ButtonGroup spacing="6" mb={6}>
+          <Button colorScheme={activeTab === 'pending' ? 'blue' : 'gray'} onClick={() => setActiveTab('pending')}>
+            Pending Course Requests
+          </Button>
+          <Button colorScheme={activeTab === 'approved' ? 'blue' : 'gray'} onClick={() => setActiveTab('approved')}>
+            Approved Courses
+          </Button>
+        </ButtonGroup>
+
+        {/* Conditional Rendering Based on Active Tab */}
+        {activeTab === 'pending' ? (
+          <Box flex="1" bg="white" p={5} borderRadius="md" boxShadow="md">
+            <Text fontSize="2xl" mb={5} fontWeight="bold" color="blue.500">
+              Pending Course Requests
+            </Text>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>#</Th>
+                  <Th>Student Name</Th>
+                  <Th>Mobile Number</Th>
+                  <Th>Batch Number</Th>
+                  <Th>Course Name</Th>
+                  <Th>Actions</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {pendingRequests.length > 0 ? (
+                  pendingRequests.map((request, index) => (
+                    <Tr key={request._id}>
+                      <Td>{index + 1}</Td>
+                      <Td>{request.userName}</Td>
+                      <Td>{request.mobileno}</Td>
+                      <Td>{request.batchNumber}</Td>
+                      <Td>{request.courseName}</Td>
+                      <Td>
+                        <ButtonGroup spacing="3">
+                          <Button colorScheme="green" size="sm" onClick={() => handleApprove(request.courseId, request.studentId)}>
+                            Approve
+                          </Button>
+                          <Button colorScheme="red" size="sm" onClick={() => handleDeny(request.courseId, request.studentId)}>
+                            Deny
+                          </Button>
+                        </ButtonGroup>
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan="6" textAlign="center">
+                      No pending requests found.
+                    </Td>
+                  </Tr>
+                )}
+              </Tbody>
+            </Table>
+          </Box>
+        ) : (
+          <Box flex="1" bg="white" p={5} borderRadius="md" boxShadow="md">
+            <Text fontSize="2xl" mb={5} fontWeight="bold" color="blue.500">
+              Approved Courses
+            </Text>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>#</Th>
+                  <Th>Student Name</Th>
+                  <Th>Mobile Number</Th>
+                  <Th>Batch Number</Th>
+                  <Th>Course Name</Th>
+                  <Th>Action</Th> {/* Added Action Column for Complete button */}
+                </Tr>
+              </Thead>
+              <Tbody>
+                {approvedRequests.length > 0 ? (
+                  approvedRequests.map((request, index) => (
+                    <Tr key={request._id}>
+                      <Td>{index + 1}</Td>
+                      <Td>{request.userName}</Td>
+                      <Td>{request.mobileno}</Td>
+                      <Td>{request.batchNumber}</Td>
+                      <Td>{request.courseName}</Td>
+                      <Td>
+                        <Button colorScheme="blue" size="sm" onClick={() => handleComplete(request.courseId, request.studentId)}>
+                          Complete
+                        </Button>
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan="6" textAlign="center">
+                      No approved requests found.
+                    </Td>
+                  </Tr>
+                )}
+              </Tbody>
+            </Table>
+          </Box>
+        )}
+      </Box>
+    </ChakraProvider>
   );
 };
-
-// Styled components
-const Section = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #4A90E2;
-  margin-bottom: 20px;
-`;
-
-const StyledTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  th {
-    background-color: #4A90E2;
-    color: white;
-  }
-
-  tr:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
-const LoadingMessage = styled.p`
-  font-size: 16px;
-  color: #4A90E2;
-  text-align: center;
-`;
-
-const ErrorMessage = styled.p`
-  color: #dc2626;
-  text-align: center;
-`;
-
-const ApproveButton = styled.button`
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 8px;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #218838;
-  }
-`;
-
-const DenyButton = styled.button`
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #c82333;
-  }
-`;
 
 export default AllCourseRequests;
