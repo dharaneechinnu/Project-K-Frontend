@@ -113,7 +113,7 @@ const MindfulnessProgress = () => {
                                 <LineChart data={responseData}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     {/* Display responseDate in local format */}
-                                    <XAxis dataKey="responseDates" label="Response Date" />
+                                    <XAxis dataKey="responseDates" />
                                     <YAxis />
                                     <Tooltip />
                                     <Legend />
@@ -183,7 +183,7 @@ const GridContainer = styled.div`
 
 const Card = styled.div`
   background-color: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -231,7 +231,7 @@ const StageDescription = styled.p`
 `;
 
 const ChartContainer = styled.div`
-  height: 300px;
+  height: 400px;
 `;
 
 const TipButton = styled.button`

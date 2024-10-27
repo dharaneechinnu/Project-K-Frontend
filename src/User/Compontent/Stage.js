@@ -266,6 +266,7 @@ const Header = styled.header`
   text-align: center;
   margin-bottom: 2rem;
   padding:10px;
+  
 `;
 
 const Title = styled.h1`
@@ -371,19 +372,15 @@ const DetailText = styled.p`
   color: #555;
   margin-bottom: 1rem;
 `;
-
 const ActionButton = styled.button`
   background-color: #4a90e2;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.3s ease;
+  border-radius: 5px;
   font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #3a7bc8;
@@ -392,35 +389,28 @@ const ActionButton = styled.button`
 
 const LockedMessage = styled.p`
   font-size: 0.9rem;
-  color: #6c757d;
-  font-style: italic;
+  color: #888;
+  text-align: center;
 `;
 
 const ProgressIndicator = styled.div`
+  text-align: center;
   margin-top: 2rem;
 `;
 
 const ProgressText = styled.p`
-  text-align: center;
   font-size: 1rem;
   color: #333;
-  margin-bottom: 0.5rem;
 `;
 
 const ProgressBar = styled.div`
+  background-color: #4a90e2;
   height: 10px;
-  background-color: #e9ecef;
+  width: ${({ width }) => width || 0}%;
+  max-width: 100%;
   border-radius: 5px;
-  overflow: hidden;
-
-  &::after {
-    content: '';
-    display: block;
-    height: 100%;
-    width: ${props => props.width}%;
-    background-color: #28a745;
-    transition: width 0.5s ease;
-  }
+  transition: width 0.3s ease;
 `;
+
 
 export default Stage;
